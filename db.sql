@@ -44,7 +44,7 @@ CREATE TABLE recipes
 	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	title VARCHAR(500) DEFAULT "",
 	description VARCHAR(1000) DEFAULT "",
-	duration INT DEFAULT 0,
+	duration INT DEFAULT 0 COMMENT "In seconds",
 	servings INT DEFAULT 0,
 	id_user INT
 );
@@ -90,7 +90,7 @@ CREATE TABLE steps
 (
 	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	position INT DEFAULT 0,
-	step VARCHAR(1000) DEFAULT "",
+	step VARCHAR(1000) DEFAULT "" COMMENT "In seconds",
 	duration INT DEFAULT 0,
 	id_recipe INT
 );
@@ -113,7 +113,7 @@ VALUES('admin', '', MD5('admin'), 1);
 INSERT INTO recipes (title, description, duration, servings, id_user)
 SELECT 'Gazpacho',
 	'Wonderful cold soup full of fresh Mediterranean vegetables! Quick and easy.',
-	20, 3, id
+	300, 3, id
 FROM users
 WHERE user = 'admin';
 
@@ -285,7 +285,7 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Kilogram'
+	WHERE measure_type = 'Kilogram'
 ),
 "Best, the tomatoes are near to mature.";
 INSERT INTO rel_ingredients_recipes
@@ -304,7 +304,7 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Unit'
+	WHERE measure_type = 'Unit'
 ),
 "The green pepper has the weight near to 60 grams.";
 INSERT INTO rel_ingredients_recipes
@@ -323,7 +323,7 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Unit'
+	WHERE measure_type = 'Unit'
 ),
 "The red pepper has the weight near to 60 grams.";
 INSERT INTO rel_ingredients_recipes
@@ -342,7 +342,7 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Unit'
+	WHERE measure_type = 'Unit'
 ),
 "A medium size cucumber";
 INSERT INTO rel_ingredients_recipes
@@ -361,7 +361,7 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Unit'
+	WHERE measure_type = 'Unit'
 ),
 "";
 INSERT INTO rel_ingredients_recipes
@@ -380,7 +380,7 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Clove'
+	WHERE measure_type = 'Clove'
 ),
 "You can add two or half cloves, depends of your taste.";
 INSERT INTO rel_ingredients_recipes
@@ -399,9 +399,9 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Tablespoon'
+	WHERE measure_type = 'Tablespoon'
 ),
-"");
+"";
 INSERT INTO rel_ingredients_recipes
 SELECT
 (
@@ -418,7 +418,7 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Tablespoon'
+	WHERE measure_type = 'Tablespoon'
 ),
 "";
 INSERT INTO rel_ingredients_recipes
@@ -437,6 +437,60 @@ SELECT
 (
 	SELECT id
 	FROM measure_types
-	WHERE title = 'Teaspoon'
+	WHERE measure_type = 'Teaspoon'
 ),
 "";
+INSERT INTO rel_ingredients_recipes
+SELECT
+(
+	SELECT id
+	FROM ingredients
+	WHERE ingredient = 'Water'
+),
+(
+	SELECT id
+	FROM recipes
+	WHERE title = 'Gazpacho'
+),
+1,
+(
+	SELECT id
+	FROM measure_types
+	WHERE measure_type = 'liter'
+),
+"You can add less water as half liter or none. Depends of your taste.";
+
+
+
+INSERT INTO steps(position, step, duration, id_recipe)
+SELECT
+	1,
+	"Mix all (don't add the olive oil, it is for the last step.) the ingredients into a blender or termomix.",
+	240,
+	id
+FROM recipes
+WHERE title = 'Gazpacho';
+INSERT INTO steps(position, step, duration, id_recipe)
+SELECT
+	2,
+	"Add the olive oil and mix with slow speed into the blender, because if you mix a fast speed the colour of gazpacho will be pink instead the fresh red color.",
+	60,
+	id
+FROM recipes
+WHERE title = 'Gazpacho';
+
+
+
+INSERT INTO points
+SELECT
+(
+	SELECT id
+	FROM recipes
+	WHERE title = 'Gazpacho'
+),
+(
+	SELECT id
+	FROM users
+	WHERE user = 'admin'
+),
+5;
