@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>test111</title>
+		<meta name="description" content="Another Recipes book">
+		<meta name="author" content="Miguel de Dios Matias">
+		
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/jquery.bootstrap-touchspin.css" rel="stylesheet">
+		<link href="css/bootstrap-tagsinput.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<script src="js/jquery-2.2.0.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.bootstrap-touchspin.min.js"></script>
+		<script src="js/bootstrap-tagsinput.js"></script>
+		<script src="js/bootstrap3-typeahead.js"></script>
+		<script src="js/scripts.js"></script>
+	</head>
+	<body>
+		<div class="panel panel-default">
+		  <div class="panel-heading">
+			<h3 class="panel-title">Panel title</h3>
+		  </div>
+		  <div class="panel-body">
+			<form id="create_recipe_form" method="post" action="index.php">
+				<input type="hidden" name="action" value="create_recipe" />
+				<input type="text" class="form-control" placeholder="Title" name="title" value="">
+				<textarea type="text" class="form-control" placeholder="Description" name="description" value="<?=$description;?>"></textarea>
+				<div class="input-group">
+					<span class="input-group-addon">Duration</span>
+					<input class="form-control" type="text" value="0" name="duration">
+				</div>
+				<input id="caca" type="text" value="Amsterdam,Washington" />
+			</form>
+		  </div>
+		</div>
+		<script type="text/javascript">
+		$("input[name='duration']").TouchSpin
+		(
+			{
+				min: 0,
+				step: 0.5,
+				boostat: 5,
+				maxboostedstep: 10,
+				postfix: 'minutes'
+			}
+		);
+		
+		$('#caca').tagsinput({
+    typeahead: {
+        source: ['Amsterdam', 'Washington', 'Sydney', 'Beijing', 'Cairo']
+    }
+    });
+		</script>
+	</body>
+</html>
