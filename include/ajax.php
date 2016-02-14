@@ -27,10 +27,12 @@ function ajax_get_tags()
 
 function ajax_get_ingredients()
 {
-	echo json_encode(array(
-		array('id' => 1, 'ingredient' => "caca"),
-		array('id' => 2, 'ingredient' => "culo"),
-		array('id' => 3, 'ingredient' => "pedo"),
-		array('id' => 4, 'ingredient' => "pis")));
+	$query = get_parameter("query", "");
+	
+	$ingredients = db_get_rows('ingredients',
+		array('id', 'ingredient'),
+		array('ingredient' => array('like' => $query . "%" )));
+	
+	echo json_encode($ingredients);
 }
 ?>

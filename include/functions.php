@@ -48,11 +48,50 @@ function get_sesion_var($var, $default = null)
 	return $return;
 }
 
-function debug($var)
+function debug($var, $file = null)
 {
-	echo "<pre>";
-	var_dump($var);
-	echo "</pre>";
+	$more_info = '';
+	if (is_string($var))
+	{
+		$more_info = 'size: ' . strlen($var);
+	}
+	elseif (is_bool($var))
+	{
+		$more_info = 'val: ' . 
+			($var ? 'true' : 'false');
+	}
+	elseif (is_null($var))
+	{
+		$more_info = 'is null';
+	}
+	elseif (is_array($var))
+	{
+		$more_info = count($var);
+	}
+	
+	if ($file === true)
+		$file = '/tmp/debug';
+	
+	if (!empty($file))
+	{
+		$f = fopen($file, "a");
+		ob_start();
+		echo date("Y/m/d H:i:s") . " (" . gettype($var) . ") " . $more_info . "\n";
+		print_r($var);
+		echo "\n\n";
+		$output = ob_get_clean();
+		fprintf($f,"%s",$output);
+		fclose($f);
+	}
+	else
+	{
+		echo "<pre>" .
+			date("Y/m/d H:i:s") . " (" . gettype($var) . ") " . $more_info .
+			"</pre>";
+		echo "<pre>";
+		print_r($var);
+		echo "</pre>";
+	}
 }
 
 function logout()
@@ -91,7 +130,6 @@ function get_measure_types()
 		$measure_types = array();
 	
 	
-	debug($measure_types);
 	
 	$return = array();
 	foreach ($measure_types as $measure)
@@ -102,27 +140,31 @@ function get_measure_types()
 	return $return;
 }
 
-function db_get_rows($table, $fields = null, $condition = null)
+function db_get_rows($table, $fields = null, $conditions = null)
 {
 	global $config;
 	
+	
 	$where_sql = "1=1";
-	if (count($condition) > 1)
+	if (count($conditions) >= 1)
 	{
-		foreach ($condition as $condition_field => $value)
+		foreach ($conditions as $conditions_field => $condition)
 		{
 			$where_sql .= " AND ";
 			
-			$where_sql .= $condition_field . " = ?";
+			switch (key($condition)) {
+				case '=':
+					$where_sql .= $conditions_field . " = ?";
+					break;
+				case 'like':
+					$where_sql .= $conditions_field . " like ?";
+					break;
+			}
 		}
-	}
-	elseif (count($condition) == 1)
-	{
-		$where_sql =  key($condition) . " = ?";
 	}
 	else
 	{
-		$condition = array();
+		$conditions = array();
 	}
 	
 	if (isset($fields))
@@ -135,12 +177,15 @@ function db_get_rows($table, $fields = null, $condition = null)
 	else
 		$select_sql = "*";
 	
-	$stmt = $config['db']->prepare("SELECT " . $select_sql . " FROM " . $table . " WHERE " . $where_sql);
+	$stmt = $config['db']->prepare("
+		SELECT " . $select_sql . "
+		FROM " . $table . "
+		WHERE " . $where_sql);
 	
 	$i = 1;
-	foreach ($condition as $value_condition)
+	foreach ($conditions as $condition)
 	{
-		$stmt->bindValue($i, $value_condition, PDO::PARAM_STR);
+		$stmt->bindValue($i, reset($condition), PDO::PARAM_STR);
 		$i++;
 	}
 	

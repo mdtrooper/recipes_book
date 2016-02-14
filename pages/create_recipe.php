@@ -148,8 +148,23 @@ function show_create_recipe()
 			<span class="glyphicon glyphicon-save"></span>
 		</button>
 	</div>
+	<form id="form_data_to_send" method="post" action="index.php">
+		<input type="hidden" name="data" value="" />
+	</form>
 	
 	<script type="text/javascript">
+		function save_recipe()
+		{
+			
+		}
+		
+		function remove_step(index)
+		{
+			$(".step_row")
+				.filter(function() { return $(this).data("index_step") === index;})
+				.remove();
+		}
+		
 		function remove_ingredient(index)
 		{
 			$(".ingredient_row")
@@ -164,7 +179,7 @@ function show_create_recipe()
 				.removeClass("step_template")
 				.addClass("step_row");
 			
-			var index_step = $(".istep_template").data("index_step");
+			var index_step = $(".step_template").data("index_step");
 			index_step++;
 			
 			$cloned_row.data("index_step", index_step);
@@ -214,7 +229,8 @@ function show_create_recipe()
 				.removeClass("ingredient_template")
 				.addClass("ingredient_row");
 			
-			var index_ingredient = $(".ingredient_template").data("index_ingredient");
+			var index_ingredient = $(".ingredient_template")
+				.data("index_ingredient");
 			index_ingredient++;
 			
 			$cloned_row.data("index_ingredient", index_ingredient);
