@@ -42,6 +42,9 @@ if ($ajax)
 		case "get_tags":
 			ajax_get_tags();
 			break;
+		case "get_ingredients":
+			ajax_get_ingredients();
+			break;
 	}
 	
 	return;

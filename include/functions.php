@@ -120,12 +120,18 @@ function db_get_rows($table, $fields = null, $condition = null)
 	{
 		$where_sql =  key($condition) . " = ?";
 	}
-	else {
+	else
+	{
 		$condition = array();
 	}
 	
 	if (isset($fields))
+	{
+		if (!is_array($fields))
+			$fields = array($fields);
+		
 		$select_sql = implode(",", $fields);
+	}
 	else
 		$select_sql = "*";
 	

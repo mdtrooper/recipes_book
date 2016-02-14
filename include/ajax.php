@@ -17,9 +17,20 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 function ajax_get_tags()
 {
-	$tags = db_get_rows('tags');
+	$tags = db_get_rows('tags', 'tag');
+	$return = array();
+	foreach ($tags as $tag)
+		$return[] = $tag['tag'];
 	
-	echo json_encode($tags);
+	echo json_encode($return);
 }
 
+function ajax_get_ingredients()
+{
+	echo json_encode(array(
+		array('id' => 1, 'ingredient' => "caca"),
+		array('id' => 2, 'ingredient' => "culo"),
+		array('id' => 3, 'ingredient' => "pedo"),
+		array('id' => 4, 'ingredient' => "pis")));
+}
 ?>

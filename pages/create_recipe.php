@@ -55,6 +55,35 @@ function show_create_recipe()
 	</div>
 	<?php
 	// --- End Template row for ingredient -----------------------------
+	
+	// --- Ini Template row for step -----------------------------------
+	?>
+	<div class="step_template row" style="display: none;" data-index_step="0">
+		<div class="panel panel-default">
+			<div class="panel-heading">Duration</div>
+			<div class="col-md-4">
+				<input class="form-control" type="text" value="0" name="step_duration_hours">
+			</div>
+			<div class="col-md-4">
+				<input class="form-control" type="text" value="0" name="step_duration_minutes">
+			</div>
+			<div class="col-md-4">
+				<input class="form-control" type="text" value="0" name="step_duration_seconds">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-11">
+				<textarea type="text" class="form-control" placeholder="Step" name="step"></textarea>
+			</div>
+			<div class="col-md-1">
+				<button type="button" class="remove_row_button btn btn-default btn-block" onclick="remove_step();">
+					<span class="glyphicon glyphicon-trash"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<?php
+	// --- End Template row for step -----------------------------------
 	?>
 	
 	
@@ -69,15 +98,14 @@ function show_create_recipe()
 			
 			<div class="panel panel-default">
 				<div class="panel-heading">Duration</div>
-				<div class="col-md-6">
+				<div class="col-md-4">
 					<input class="form-control" type="text" value="0" name="duration_hours">
 				</div>
-<!--
-				</div>
-				<div class="input-group">
--->
-				<div class="col-md-6">
+				<div class="col-md-4">
 					<input class="form-control" type="text" value="0" name="duration_minutes">
+				</div>
+				<div class="col-md-4">
+					<input class="form-control" type="text" value="0" name="duration_seconds">
 				</div>
 			</div>
 			
@@ -95,18 +123,26 @@ function show_create_recipe()
 	<div class="panel panel-default">
 		<div class="ingredients_title panel-heading">Ingredients</div>
 		
-		<div class="row">
-			<button type="button" class="btn btn-default col-md-12" onclick="add_ingredient();">
-				Add ingredient
-				<span class="glyphicon glyphicon-plus"></span>
-			</button>
-		</div>
-		
-		
+		<button type="button" class="btn btn-default btn-block add_ingredient_row" onclick="add_ingredient();">
+			Add ingredient
+			<span class="glyphicon glyphicon-plus"></span>
+		</button>
 	</div>
 	
 	<div class="panel panel-default">
-		<div class="panel-heading">Steps</div>
+		<div class="steps_title panel-heading">Steps</div>
+		
+		<button type="button" class="btn btn-default btn-block add_step_row" onclick="add_step();">
+			Add step
+			<span class="glyphicon glyphicon-plus"></span>
+		</button>
+	</div>
+	
+	<div class="panel panel-default">
+		<button type="button" class="btn btn-default btn-block save_recipe_row" onclick="save_recipe();">
+			Save recipe
+			<span class="glyphicon glyphicon-plus"></span>
+		</button>
 	</div>
 	
 	<script type="text/javascript">
@@ -115,6 +151,56 @@ function show_create_recipe()
 			$(".ingredient_row")
 				.filter(function() { return $(this).data("index_ingredient") === index;})
 				.remove();
+		}
+		
+		function add_step()
+		{
+			var $cloned_row = $(".step_template")
+				.clone()
+				.removeClass("step_template")
+				.addClass("step_row");
+			
+			var index_step = $(".istep_template").data("index_step");
+			index_step++;
+			
+			$cloned_row.data("index_step", index_step);
+			$(".step_template").data("index_step", index_step);
+			
+			$cloned_row.find(".remove_row_button")
+				.attr("onclick", "javascript: remove_step(" + index_step + ");");
+			
+			
+			$("input[name='step_duration_hours']", $cloned_row).TouchSpin
+			(
+				{
+					min: 0,
+					boostat: 5,
+					maxboostedstep: 10,
+					postfix: 'hours'
+				}
+			);
+			$("input[name='step_duration_minutes']", $cloned_row).TouchSpin
+			(
+				{
+					min: 0,
+					boostat: 5,
+					maxboostedstep: 10,
+					postfix: 'minutes'
+				}
+			);
+			$("input[name='step_duration_seconds']", $cloned_row).TouchSpin
+			(
+				{
+					min: 0,
+					boostat: 5,
+					maxboostedstep: 10,
+					postfix: 'seconds'
+				}
+			);
+			
+			$cloned_row
+				.insertBefore(".add_step_row")
+				.show();
 		}
 		
 		function add_ingredient()
@@ -133,17 +219,43 @@ function show_create_recipe()
 			$cloned_row.find(".remove_row_button")
 				.attr("onclick", "javascript: remove_ingredient(" + index_ingredient + ");");
 			
-			$('.ingredient', $cloned_row).selectize({
-				create: true,
-				sortField: 'text'
-			});
+			$('.ingredient', $cloned_row).selectize
+			(
+				{
+					create: true,
+					sortField: 'ingredient',
+					valueField: 'id',
+					labelField: 'ingredient',
+					searchField: 'ingredient',
+					load:
+						function(query, callback)
+						{
+							if (!query.length) return callback();
+							$.ajax
+							(
+								{
+									url: 'index.php?ajax=1&action=get_ingredients&query=' + encodeURIComponent(query),
+									type: 'GET',
+									dataType: 'json',
+									error: function() {
+										callback();
+									},
+									success: function(res) {
+										console.log(res);
+										callback(res.slice(0, 10));
+									}
+								}
+							);
+						}
+				}
+			);
 			$('.measure_type', $cloned_row).selectize({
 				create: true,
 				sortField: 'text'
 			});
 			
 			$cloned_row
-				.insertAfter(".ingredients_title")
+				.insertBefore(".add_ingredient_row")
 				.show();
 		}
 		
@@ -164,6 +276,15 @@ function show_create_recipe()
 				boostat: 5,
 				maxboostedstep: 10,
 				postfix: 'minutes'
+			}
+		);
+		$("input[name='duration_seconds']").TouchSpin
+		(
+			{
+				min: 0,
+				boostat: 5,
+				maxboostedstep: 10,
+				postfix: 'seconds'
 			}
 		);
 		$("input[name='servings']").TouchSpin
