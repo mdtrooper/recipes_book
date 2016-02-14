@@ -58,9 +58,11 @@ function show_create_recipe()
 	
 	// --- Ini Template row for step -----------------------------------
 	?>
-	<div class="step_template row" style="display: none;" data-index_step="0">
-		<div class="panel panel-default">
+	<div class="step_template" style="display: none; margin-bottom: 10px;" data-index_step="0">
+		<div class="row">
+<!--
 			<div class="panel-heading">Duration</div>
+-->
 			<div class="col-md-4">
 				<input class="form-control" type="text" value="0" name="step_duration_hours">
 			</div>
@@ -73,10 +75,10 @@ function show_create_recipe()
 		</div>
 		<div class="row">
 			<div class="col-md-11">
-				<textarea type="text" class="form-control" placeholder="Step" name="step"></textarea>
+				<textarea type="text" class="form-control col-md-11" placeholder="Step" name="step"></textarea>
 			</div>
 			<div class="col-md-1">
-				<button type="button" class="remove_row_button btn btn-default btn-block" onclick="remove_step();">
+				<button type="button" class="remove_row_button btn btn-default btn-lg btn-block" onclick="remove_step();">
 					<span class="glyphicon glyphicon-trash"></span>
 				</button>
 			</div>
@@ -98,14 +100,16 @@ function show_create_recipe()
 			
 			<div class="panel panel-default">
 				<div class="panel-heading">Duration</div>
-				<div class="col-md-4">
-					<input class="form-control" type="text" value="0" name="duration_hours">
-				</div>
-				<div class="col-md-4">
-					<input class="form-control" type="text" value="0" name="duration_minutes">
-				</div>
-				<div class="col-md-4">
-					<input class="form-control" type="text" value="0" name="duration_seconds">
+				<div class="row">
+					<div class="col-md-4">
+						<input class="form-control" type="text" value="0" name="duration_hours">
+					</div>
+					<div class="col-md-4">
+						<input class="form-control" type="text" value="0" name="duration_minutes">
+					</div>
+					<div class="col-md-4">
+						<input class="form-control" type="text" value="0" name="duration_seconds">
+					</div>
 				</div>
 			</div>
 			
@@ -139,9 +143,9 @@ function show_create_recipe()
 	</div>
 	
 	<div class="panel panel-default">
-		<button type="button" class="btn btn-default btn-block save_recipe_row" onclick="save_recipe();">
+		<button type="button" class="btn btn-default btn-lg btn-block save_recipe_row" onclick="save_recipe();">
 			Save recipe
-			<span class="glyphicon glyphicon-plus"></span>
+			<span class="glyphicon glyphicon-save"></span>
 		</button>
 	</div>
 	

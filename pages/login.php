@@ -49,7 +49,7 @@ function show_login()
 					<span class="input-group-addon glyphicon glyphicon-lock"></span>
 					<input type="password" class="form-control" placeholder="Password" name="password">
 				</div>
-				<button type="button" class="btn btn-default btn-lg col-md-12" onclick="$('#login_form').submit();">
+				<button type="button" class="btn btn-default btn-lg btn-block" onclick="$('#login_form').submit();">
 					Login
 					<span class="glyphicon glyphicon-chevron-right"></span>
 				</button>
