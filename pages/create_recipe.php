@@ -21,20 +21,60 @@ function show_create_recipe()
 	$content["title"] = "Recipes book - Create Recipe";
 	$content["section"] = "create_recipe";
 	
+	$data_json = get_parameter('data', null);
+	$data = json_decode($data_json, true);
+	
+	$title = "";
+	if (isset($data['title']))
+		$title = $data['title'];
+	
+	$description = "";
+	if (isset($data['description']))
+		$description = $data['description'];
+	
+	$duration_hours = 0;
+	$duration_minutes = 0;
+	$duration_seconds = 0;
+	if (isset($data['duration']))
+	{
+		$duration = seconds_to_time_array($data['duration']);
+		$duration_hours = $duration['hours'];
+		$duration_minutes = $duration['minutes'];
+		$duration_seconds = $duration['seconds'];
+	}
+	
+	$servings = 0;
+	if (isset($data['servings']))
+		$servings = $data['servings'];
+	
+	$tags = "";
+	if (isset($data['tags']))
+		$tags = implode(",", $data['tags']);
+	
+	$ingredients = array();
+	if (isset($data['ingredients']))
+		$ingredients = $data['ingredients'];
+	
+	foreach ($ingredients as $i => $ingredient)
+	{
+		$ingredients[$i]['name'] =
+			db_get_value('ingredients', 'ingredient', array('id' => $ingredient['id']));
+	}
+	
 	ob_start();
 	
 	// --- Ini Template row for ingredient -----------------------------
 	?>
 	<div class="ingredient_template row" style="display: none;" data-index_ingredient="0">
 		<div class="col-md-4">
-			<select name="template_ingredient" class="ingredient" placeholder="Ingredient">
+			<select name="ingredient" class="ingredient" placeholder="Ingredient">
 			</select>
 		</div>
 		<div class="col-md-1">
-			<input type="text" class="form-control" placeholder="Amount" name="template_amount" value="">
+			<input type="text" class="form-control" placeholder="Amount" name="amount" value="">
 		</div>
 		<div class="col-md-2">
-			<select name="template_measure_type" class="measure_type" placeholder="Measure type" >
+			<select name="measure_type" class="measure_type" placeholder="Measure type" >
 				<?php
 				foreach (get_measure_types() as $id_measure => $measure) {
 					?>
@@ -45,7 +85,7 @@ function show_create_recipe()
 			</select>
 		</div>
 		<div class="col-md-4">
-			<input type="text" class="form-control" placeholder="Note" name="template_note" value="">
+			<input type="text" class="form-control" placeholder="Note" name="note" value="">
 		</div>
 		<div class="col-md-1">
 			<button type="button" class="remove_row_button btn btn-default col-md-12" onclick="remove_ingredient();">
@@ -95,31 +135,31 @@ function show_create_recipe()
 		<form id="create_recipe_form" method="post" action="index.php">
 			<input type="hidden" name="action" value="create_recipe" />
 			<input type="text" class="form-control" placeholder="Title" name="title" value="<?=$title;?>">
-			<textarea type="text" class="form-control" placeholder="Description" name="description" value="<?=$description;?>"></textarea>
+			<textarea type="text" class="form-control" placeholder="Description" name="description"><?=$description;?></textarea>
 			
 			
 			<div class="panel panel-default">
 				<div class="panel-heading">Duration</div>
 				<div class="row">
 					<div class="col-md-4">
-						<input class="form-control" type="text" value="0" name="duration_hours">
+						<input class="form-control" type="text" name="duration_hours" value="<?=$duration_hours;?>">
 					</div>
 					<div class="col-md-4">
-						<input class="form-control" type="text" value="0" name="duration_minutes">
+						<input class="form-control" type="text" name="duration_minutes" value="<?=$duration_minutes;?>">
 					</div>
 					<div class="col-md-4">
-						<input class="form-control" type="text" value="0" name="duration_seconds">
+						<input class="form-control" type="text" name="duration_seconds" value="<?=$duration_seconds;?>">
 					</div>
 				</div>
 			</div>
 			
 			<div class="input-group">
 				<span class="input-group-addon">Servings</span>
-				<input class="form-control" type="text" value="1" name="servings">
+				<input class="form-control" type="text" name="servings" value="<?=$servings;?>">
 			</div>
 			<div class="input-group">
 				<span class="input-group-addon">Tags</span>
-				<input name="tags" class="form-control" type="text" value="" />
+				<input name="tags" class="form-control" type="text" value="<?=$tags;?>" />
 			</div>
 		</form>
 	</div>
@@ -148,14 +188,74 @@ function show_create_recipe()
 			<span class="glyphicon glyphicon-save"></span>
 		</button>
 	</div>
-	<form id="form_data_to_send" method="post" action="index.php">
+	<form id="form_data_to_send" method="post" action="index.php?action=save_recipe&page=create_recipe">
 		<input type="hidden" name="data" value="" />
 	</form>
 	
 	<script type="text/javascript">
+		var ingredients = <?=json_encode($ingredients);?>;
+		
 		function save_recipe()
 		{
+			var recipe = {};
+			recipe['title'] = $("input[name='title']").val();
+			recipe['description'] = $("textarea[name='description']").val();
+			recipe['duration'] = <?=SECONDS_1_HOUR;?> * parseInt($("input[name='duration_hours']").val());
+			recipe['duration'] += <?=SECONDS_1_MINUTE;?> * parseInt($("input[name='duration_minutes']").val());
+			recipe['duration'] += parseInt($("input[name='duration_seconds']").val());
+			recipe['servings'] = $("input[name='servings']").val();
+			recipe['tags'] = $.map($("input[name='tags']").val().split(","), $.trim);
 			
+			recipe['ingredients'] = [];
+			$.each(
+				$(".ingredient_row"),
+				function(i, ingredient)
+				{
+					var temp = {};
+					
+					temp["id"] =
+						$("select[name='ingredient']", ingredient).val();
+					temp["amount"] =
+						$("input[name='amount']", ingredient).val();
+					temp["measure_type"] =
+						$("select[name='measure_type']", ingredient).val();
+					temp["note"] =
+						$("input[name='note']", ingredient).val();
+					
+					recipe['ingredients'][$(ingredient).data('index_ingredient')] = temp;
+				}
+			);
+			
+			recipe['ingredients'] =
+				$.grep(recipe['ingredients'], function(elem) { return typeof(elem) != 'undefined'; });
+			
+			recipe['steps'] = [];
+			
+			$.each(
+				$(".step_row"),
+				function(i, step)
+				{
+					var temp = {};
+					
+					temp['duration'] = <?=SECONDS_1_HOUR;?> *
+						parseInt($("input[name='step_duration_hours']", step).val());
+					temp['duration'] += <?=SECONDS_1_MINUTE;?> *
+						parseInt($("input[name='step_duration_minutes']", step).val());
+					temp['duration'] +=
+						parseInt($("input[name='step_duration_seconds']", step).val());
+					temp['step'] =
+						$("textarea[name='step']", step).val();
+					
+					recipe['steps'][$(step).data('index_step')] = temp;
+				}
+			);
+			
+			recipe['steps'] =
+				$.grep(recipe['steps'], function(elem) { return typeof(elem) != 'undefined'; });
+			
+			json_recipe = JSON.stringify(recipe);
+			$("input[name='data']").val(json_recipe);
+			$("#form_data_to_send").submit();
 		}
 		
 		function remove_step(index)
@@ -222,8 +322,22 @@ function show_create_recipe()
 				.show();
 		}
 		
-		function add_ingredient()
+		function add_ingredient(ingredient)
 		{
+			var id = null;
+			var name = null;
+			var measure_type = null;
+			var amount = "";
+			var note = "";
+			if (typeof(ingredient) != "undefined")
+			{
+				id = ingredient['id'];
+				name = ingredient['name'];
+				measure_type = ingredient['measure_type'];
+				amount = ingredient['amount'];
+				note = ingredient['note'];
+			}
+			
 			var $cloned_row = $(".ingredient_template")
 				.clone()
 				.removeClass("ingredient_template")
@@ -257,11 +371,14 @@ function show_create_recipe()
 									url: 'index.php?ajax=1&action=get_ingredients&query=' + encodeURIComponent(query),
 									type: 'GET',
 									dataType: 'json',
-									error: function() {
+									error:
+									function()
+									{
 										callback();
 									},
-									success: function(res) {
-										console.log(res);
+									success:
+									function(res)
+									{
 										callback(res.slice(0, 10));
 									}
 								}
@@ -269,10 +386,23 @@ function show_create_recipe()
 						}
 				}
 			);
-			$('.measure_type', $cloned_row).selectize({
-				create: true,
-				sortField: 'text'
-			});
+			$('.measure_type', $cloned_row).selectize
+			(
+				{
+					create: true,
+					sortField: 'text'
+				}
+			);
+			
+			if (id != null)
+			{
+				$(".ingredient", $cloned_row)[0]
+					.selectize.addOption({'id': id, 'ingredient': name});
+				$(".ingredient", $cloned_row)[0].selectize.setValue(id);
+			}
+			$('input[name="amount"]', $cloned_row).val(amount);
+			$(".measure_type", $cloned_row)[0].selectize.setValue(measure_type);
+			$('input[name="note"]', $cloned_row).val(note);
 			
 			$cloned_row
 				.insertBefore(".add_ingredient_row")
@@ -324,12 +454,30 @@ function show_create_recipe()
 				{
 					source:  function(query)
 					{
-						caca = $.getJSON('index.php?ajax=1&action=get_tags&query=' + query);
+						source = $.getJSON('index.php?ajax=1&action=get_tags&query=' + query);
 						
-						console.log(caca);
-						
-						return caca;
+						return source;
 					}
+				}
+			}
+		);
+		
+		$(
+			function()
+			{
+				if (ingredients.length > 0)
+				{
+					$.each
+					(
+						ingredients,
+						function(i, ingredient)
+						{
+							if (ingredient != null)
+							{
+								add_ingredient(ingredient);
+							}
+						}
+					);
 				}
 			}
 		);

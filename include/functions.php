@@ -15,6 +15,13 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
+////////////////////////////////////////////////////////////////////////
+// CONSTANTS
+
+define("SECONDS_1_HOUR", 360);
+define("SECONDS_1_MINUTE", 60);
+////////////////////////////////////////////////////////////////////////
+
 function get_parameter($parameter, $default = null)
 {
 	if (isset($_POST[$parameter]))
@@ -137,6 +144,8 @@ function get_measure_types()
 		$return[$measure['id']] = $measure['measure_type'];
 	}
 	
+	debug($return, true);
+	
 	return $return;
 }
 
@@ -199,6 +208,45 @@ function db_get_rows($table, $fields = null, $conditions = null)
 		return $rows;
 }
 
+function db_get_columns_info($table)
+{
+	global $config;
+	
+	$return = array();
+	
+	$stmt = $config['db']->prepare("SELECT * FROM $table");
+	$stmt->execute();
+	
+	for($i = 0; $i < $stmt->columnCount(); $i++)
+	{
+		$info = $stmt->getColumnMeta($i);
+		$return[$info['name']] = $info['pdo_type'];
+	}
+	
+	return $return;
+}
+
+function db_insert($table, $values)
+{
+	global $config;
+	
+	$columns_info = db_get_columns_info($table);
+	
+	$sql = "INSERT INTO $table(" . implode(",", array_keys($values)) . ")
+		VALUES(" . implode(",", array_map(function($v) { return ":$v";}, array_keys($values))) . ")";
+	
+	$stmt = $config['db']->prepare($sql);
+	
+	foreach ($values as $field => $value)
+	{
+		$stmt->bindValue(":" . $field, $value, $columns_info[$field]);
+	}
+	
+	$stmt->execute();
+	
+	return $config['db']->lastInsertId("id");
+}
+
 function db_get_value($table, $field, $condition)
 {
 	global $config;
@@ -248,7 +296,7 @@ function db_connect()
 	{
 		
 		$config['db'] = new PDO(
-			'mysql:host=' . $config['db_host'] . ';dbname=' . $config['db_name'],
+			'mysql:host=' . $config['db_host'] . ';dbname=' . $config['db_name'] . ';charset=utf8',
 			$config['db_user'],
 			$config['db_password'],
 			array(
@@ -301,5 +349,116 @@ function get_message()
 	}
 	
 	return $message;
+}
+
+function save_recipe()
+{
+	global $config;
+	
+	$id_user = db_get_value('users', 'id',
+		array('user' => $config['user']));
+	
+	$json_recipe = get_parameter("data");
+	
+	$recipe = json_decode($json_recipe, true);
+	
+	$id_recipe = (int)db_insert('recipes',
+		array
+		(
+			'title' => $recipe['title'],
+			'description' => $recipe['description'],
+			'duration' => $recipe['duration'],
+			'servings' => $recipe['servings'],
+			'id_user' => $id_user
+		)
+	);
+	
+	if ($id_recipe > 0)
+	{
+		// Save the rest of parts of recipe.
+		
+		// --- Tags ----------------------------------------------------
+		foreach ($recipe['tags'] as $tag)
+		{
+			$id_tag = (int)db_get_value('tags', 'id',
+				array('tag' => $tag));
+			
+			if ($id_tag == 0)
+			{
+				// We need to save the new tag
+				$id_tag = (int)db_insert('tags',
+					array
+					(
+						'tags' => $tag,
+						'id_user' => $id_user
+					)
+				);
+			}
+			
+			db_insert('rel_tags_recipes',
+				array
+				(
+					'id_tag' => $id_tag,
+					'id_recipe' => $id_recipe
+				)
+			);
+		}
+		
+		// --- Ingredients ---------------------------------------------
+		foreach ($recipe['ingredients'] as $ingredient)
+		{
+			debug($ingredient, true);
+			if (!is_int($ingredient['id']))
+			{
+				// It is a new ingredient
+				$ingredient['id'] = (int)db_insert('ingredients',
+					array
+					(
+						'ingredient' => $ingredient['id'],
+						'id_user' => $id_user
+					)
+				);
+			}
+			
+			if (!is_int($ingredient['measure_type']))
+			{
+				// It is a new ingredient
+				$ingredient['measure_type'] = (int)db_insert('measure_types',
+					array
+					(
+						'measure_type' => $ingredient['measure_type'],
+						'id_user' => $id_user
+					)
+				);
+			}
+			
+			db_insert('rel_ingredients_recipes',
+				array
+				(
+					'id_ingredient' => $ingredient['id'],
+					'id_recipe' => $id_recipe,
+					'amount' => $ingredient['amount'],
+					'id_measure_type' => $ingredient['measure_type'],
+					'notes' => $ingredient['note']
+				)
+			);
+		}
+	}
+	
+}
+
+function seconds_to_time_array($seconds)
+{
+	$return = array('hours' => 0, 'minutes' => 0, 'seconds' => 0);
+	
+	$return['hours'] = (int)($seconds / SECONDS_1_HOUR);
+	
+	$seconds -= ($return['hours'] * SECONDS_1_HOUR);
+	$return['minutes'] = (int)($seconds / SECONDS_1_MINUTE);
+	
+	$seconds -= ($return['minutes'] * SECONDS_1_MINUTE);
+	$return['seconds'] = $seconds;
+	
+	return $return;
 }
 ?>

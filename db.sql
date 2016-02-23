@@ -37,7 +37,8 @@ CREATE TABLE users
 	email VARCHAR(500) DEFAULT "",
 	password VARCHAR(500) DEFAULT "",
 	validate TINYINT DEFAULT 0
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE recipes
 (
@@ -47,27 +48,31 @@ CREATE TABLE recipes
 	duration INT DEFAULT 0 COMMENT "In seconds",
 	servings INT DEFAULT 0,
 	id_user INT
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE tags
 (
 	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	tag VARCHAR(500) DEFAULT "",
 	id_user INT
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE rel_tags_recipes
 (
 	id_tag INT,
 	id_recipe INT
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE ingredients
 (
 	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	ingredient VARCHAR(500) DEFAULT "",
 	id_user INT
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE rel_ingredients_recipes
 (
@@ -76,14 +81,16 @@ CREATE TABLE rel_ingredients_recipes
 	amount FLOAT DEFAULT 0,
 	id_measure_type INT,
 	notes VARCHAR(1000) DEFAULT ""
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE measure_types
 (
 	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 	measure_type VARCHAR(500) DEFAULT "",
 	id_user INT
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE steps
@@ -93,14 +100,16 @@ CREATE TABLE steps
 	step VARCHAR(1000) DEFAULT "" COMMENT "In seconds",
 	duration INT DEFAULT 0,
 	id_recipe INT
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE points
 (
 	id_recipe INT,
 	id_user INT,
 	points INT DEFAULT 0
-);
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 -- ---------------------------------------------------------------------

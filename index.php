@@ -55,6 +55,15 @@ $page = get_parameter("page", "home");
 
 switch ($action)
 {
+	case "save_recipe":
+		$correct = false;
+		if (user_logged())
+			$correct = save_recipe();
+		if ($correct)
+			set_message("correct_save_recipe");
+		else
+			set_message("error_save_recipe");
+		break;
 	case "logout":
 		logout();
 		$page = "home";
