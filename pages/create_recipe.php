@@ -55,10 +55,43 @@ function show_create_recipe()
 	if (isset($data['ingredients']))
 		$ingredients = $data['ingredients'];
 	
+	
 	foreach ($ingredients as $i => $ingredient)
 	{
-		$ingredients[$i]['name'] =
-			db_get_value('ingredients', 'ingredient', array('id' => $ingredient['id']));
+		if (!is_int($ingredient['id']))
+		{
+			$ingredients[$i]['name'] = $ingredient['id'];
+			$ingredients[$i]['id'] =
+				db_get_value('ingredients', 'ingredient',
+					array('ingredient' => $ingredient['id']));
+		}
+		else
+		{
+			$ingredients[$i]['name'] =
+				db_get_value('ingredients', 'ingredient',
+					array('id' => $ingredient['id']));
+		}
+		
+		if (!is_int($ingredient['measure_type']))
+		{
+			$ingredients[$i]['measure_type'] =
+				db_get_value('measure_types', 'id',
+					array('measure_type' => $ingredient['measure_type']));
+		}
+	}
+	
+	$steps = array();
+	if (isset($data['steps']))
+		$steps = $data['steps'];
+	
+	debug($steps, true);
+	
+	foreach ($steps as $i => $step)
+	{
+		$duration = seconds_to_time_array($step['duration']);
+		$steps[$i]['duration_hours'] = $duration['hours'];
+		$steps[$i]['duration_minutes'] = $duration['minutes'];
+		$steps[$i]['duration_seconds'] = $duration['seconds'];
 	}
 	
 	ob_start();
@@ -194,6 +227,7 @@ function show_create_recipe()
 	
 	<script type="text/javascript">
 		var ingredients = <?=json_encode($ingredients);?>;
+		var steps = <?=json_encode($steps);?>;
 		
 		function save_recipe()
 		{
@@ -272,8 +306,23 @@ function show_create_recipe()
 				.remove();
 		}
 		
-		function add_step()
+		function add_step(step)
 		{
+			var duration_hours = 0;
+			var duration_minutes = 0;
+			var duration_seconds = 0;
+			var step_textarea = "";
+			
+			
+			if (typeof(step) != "undefined")
+			{
+				duration_hours = step['duration_hours'];
+				duration_hours = step['duration_hours'];
+				duration_hours = step['duration_hours'];
+				step_textarea = step['step'];
+			}
+			
+			
 			var $cloned_row = $(".step_template")
 				.clone()
 				.removeClass("step_template")
@@ -297,7 +346,7 @@ function show_create_recipe()
 					maxboostedstep: 10,
 					postfix: 'hours'
 				}
-			);
+			).val(duration_hours);
 			$("input[name='step_duration_minutes']", $cloned_row).TouchSpin
 			(
 				{
@@ -306,7 +355,7 @@ function show_create_recipe()
 					maxboostedstep: 10,
 					postfix: 'minutes'
 				}
-			);
+			).val(duration_minutes);
 			$("input[name='step_duration_seconds']", $cloned_row).TouchSpin
 			(
 				{
@@ -315,7 +364,10 @@ function show_create_recipe()
 					maxboostedstep: 10,
 					postfix: 'seconds'
 				}
-			);
+			).val(duration_hours);
+			
+			$("textarea[name='step']", $cloned_row).val(step_textarea);
+			
 			
 			$cloned_row
 				.insertBefore(".add_step_row")
@@ -475,6 +527,21 @@ function show_create_recipe()
 							if (ingredient != null)
 							{
 								add_ingredient(ingredient);
+							}
+						}
+					);
+				}
+				
+				if (steps.length > 0)
+				{
+					$.each
+					(
+						steps,
+						function(i, step)
+						{
+							if (step != null)
+							{
+								add_step(step);
 							}
 						}
 					);

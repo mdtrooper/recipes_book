@@ -144,8 +144,6 @@ function get_measure_types()
 		$return[$measure['id']] = $measure['measure_type'];
 	}
 	
-	debug($return, true);
-	
 	return $return;
 }
 
@@ -407,7 +405,6 @@ function save_recipe()
 		// --- Ingredients ---------------------------------------------
 		foreach ($recipe['ingredients'] as $ingredient)
 		{
-			debug($ingredient, true);
 			if (!is_int($ingredient['id']))
 			{
 				// It is a new ingredient
@@ -442,6 +439,23 @@ function save_recipe()
 					'notes' => $ingredient['note']
 				)
 			);
+		}
+		
+		// --- Steps ---------------------------------------------------
+		$position = 1;
+		foreach ($recipe['steps'] as $step)
+		{
+			db_insert('steps',
+				array
+				(
+					'id_recipe' => $id_recipe,
+					'position' => $position,
+					'step' => $step['step'],
+					'duration' => $step['duration']
+				)
+			);
+			
+			$position++;
 		}
 	}
 	
