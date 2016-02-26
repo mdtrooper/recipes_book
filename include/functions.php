@@ -353,6 +353,8 @@ function save_recipe()
 {
 	global $config;
 	
+	$return = true;
+	
 	$id_user = db_get_value('users', 'id',
 		array('user' => $config['user']));
 	
@@ -370,6 +372,7 @@ function save_recipe()
 			'id_user' => $id_user
 		)
 	);
+	
 	
 	if ($id_recipe > 0)
 	{
@@ -458,7 +461,12 @@ function save_recipe()
 			$position++;
 		}
 	}
+	else
+	{
+		$return = false;
+	}
 	
+	return $return;
 }
 
 function seconds_to_time_array($seconds)
