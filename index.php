@@ -105,7 +105,7 @@ switch ($page)
 		show_login();
 		break;
 	case 'create_recipe':
-		require_once("pages/create_recipe.php");
+		require_once("pages/recipe_form.php");
 		show_create_recipe();
 		break;
 	case 'recipe':
