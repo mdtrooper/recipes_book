@@ -133,9 +133,6 @@ function show_create_recipe()
 	?>
 	<div class="step_template" style="display: none; margin-bottom: 10px;" data-index_step="0">
 		<div class="row">
-<!--
-			<div class="panel-heading">Duration</div>
--->
 			<div class="col-md-4">
 				<input class="form-control" type="text" value="0" name="step_duration_hours">
 			</div>
@@ -161,8 +158,27 @@ function show_create_recipe()
 	// --- End Template row for step -----------------------------------
 	?>
 	
-	
-	
+	<?php
+	switch (get_message()) {
+		case "error_save_recipe":
+			?>
+			<div class="alert alert-danger" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>Error!</strong> A problem has been occurred in the save recipe.
+			</div>
+			<?php
+			break;
+		case "correct_save_recipe":
+			?>
+			<div class="alert alert-success" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>Correct!</strong> Save recipe.
+			</div>
+			<?php
+			break;
+	}
+	set_message(null);
+	?>
 	<div class="panel panel-default">
 		<div class="panel-heading">Recipe</div>
 		<form id="create_recipe_form" method="post" action="index.php">
