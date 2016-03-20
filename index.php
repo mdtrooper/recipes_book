@@ -28,6 +28,7 @@ require_once("include/html.php");
 require_once("include/ajax.php");
 
 $config['user'] = get_sesion_var('user', null);
+$config['id_user'] = get_sesion_var('id_user', null);
 
 db_connect();
 
@@ -37,14 +38,17 @@ $action = get_parameter("action");
 
 if ($ajax)
 {
-	switch ($action)
+	if (user_logged())
 	{
-		case "get_tags":
-			ajax_get_tags();
-			break;
-		case "get_ingredients":
-			ajax_get_ingredients();
-			break;
+		switch ($action)
+		{
+			case "get_tags":
+				ajax_get_tags();
+				break;
+			case "get_ingredients":
+				ajax_get_ingredients();
+				break;
+		}
 	}
 	
 	return;
@@ -84,7 +88,8 @@ switch ($action)
 }
 
 if (($page === "login" && user_logged()) ||
-	($page === "create_recipe" && !user_logged()))
+	($page === "recipe_form" && !user_logged()) ||
+	($page === "user" && !user_logged()))
 {
 	$page = "home";
 }
@@ -104,9 +109,13 @@ switch ($page)
 		require_once("pages/login.php");
 		show_login();
 		break;
-	case 'create_recipe':
+	case 'recipe_form':
 		require_once("pages/recipe_form.php");
-		show_create_recipe();
+		show_recipe_form();
+		break;
+	case 'user':
+		require_once("pages/user.php");
+		show_user();
 		break;
 	case 'recipe':
 		break;

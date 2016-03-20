@@ -15,11 +15,24 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-function show_create_recipe()
+function show_recipe_form()
 {
+	$action = get_parameter('action');
+	
 	$content = array();
-	$content["title"] = "Recipes book - Create Recipe";
-	$content["section"] = "create_recipe";
+	
+	
+	switch ($action)
+	{
+		default:
+			$content["title"] = "Recipes book - Create Recipe";
+			break;
+		case "save_recipe":
+			$content["title"] = "Recipes book - Update Recipe";
+			break;
+	}
+	
+	$content["section"] = "recipe_form";
 	
 	$data_json = get_parameter('data', null);
 	$data = json_decode($data_json, true);
@@ -159,7 +172,8 @@ function show_create_recipe()
 	?>
 	
 	<?php
-	switch (get_message()) {
+	switch (get_message())
+	{
 		case "error_save_recipe":
 			?>
 			<div class="alert alert-danger" role="alert">
@@ -237,7 +251,7 @@ function show_create_recipe()
 			<span class="glyphicon glyphicon-save"></span>
 		</button>
 	</div>
-	<form id="form_data_to_send" method="post" action="index.php?action=save_recipe&page=create_recipe">
+	<form id="form_data_to_send" method="post" action="index.php?action=save_recipe&page=recipe_form">
 		<input type="hidden" name="data" value="" />
 	</form>
 	

@@ -20,6 +20,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 define("SECONDS_1_HOUR", 360);
 define("SECONDS_1_MINUTE", 60);
+define("SIZE_TRUNCATE_TEXT", 20);
+define("PAGINATION_BLOCK", 5);
+define("NUM_PAGES", 5);
 ////////////////////////////////////////////////////////////////////////
 
 function get_parameter($parameter, $default = null)
@@ -122,7 +125,9 @@ function login()
 	if ($validate)
 	{
 		$config['user'] = $user;
+		$config['id_user'] = db_get_value('users', 'id', array('user' => $user));
 		set_session_var('user', $user);
+		set_session_var('id_user', $config['id_user']);
 	}
 	
 	return $validate;
@@ -147,7 +152,7 @@ function get_measure_types()
 	return $return;
 }
 
-function db_get_rows($table, $fields = null, $conditions = null)
+function db_make_where($conditions)
 {
 	global $config;
 	
@@ -169,10 +174,47 @@ function db_get_rows($table, $fields = null, $conditions = null)
 			}
 		}
 	}
-	else
-	{
+	
+	return $where_sql;
+}
+
+function db_get_count($table, $conditions = null)
+{
+	global $config;
+	
+	if (is_null($conditions))
 		$conditions = array();
+	$where_sql = db_make_where($conditions);
+	
+	$stmt = $config['db']->prepare("
+		SELECT COUNT(*)
+		FROM " . $table . "
+		WHERE " . $where_sql);
+	
+	$i = 1;
+	foreach ($conditions as $condition)
+	{
+		$stmt->bindValue($i, reset($condition), PDO::PARAM_STR);
+		$i++;
 	}
+	
+	$stmt->execute();
+	
+	$row = $stmt->fetch();
+	
+	if (empty($row))
+		return 0;
+	else
+		return $row[0];
+}
+
+function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
+{
+	global $config;
+	
+	if (is_null($conditions))
+		$conditions = array();
+	$where_sql = db_make_where($conditions);
 	
 	if (isset($fields))
 	{
@@ -184,10 +226,17 @@ function db_get_rows($table, $fields = null, $conditions = null)
 	else
 		$select_sql = "*";
 	
+	$limit_sql = "";
+	if (!is_null($limit))
+	{
+		$limit_sql = "LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
+	}
+	
 	$stmt = $config['db']->prepare("
 		SELECT " . $select_sql . "
 		FROM " . $table . "
-		WHERE " . $where_sql);
+		WHERE " . $where_sql . "
+		" . $limit_sql);
 	
 	$i = 1;
 	foreach ($conditions as $condition)
@@ -249,23 +298,9 @@ function db_get_value($table, $field, $condition)
 {
 	global $config;
 	
-	$where_sql = "";
-	if (count($condition) > 1)
-	{
-		$first = true;
-		foreach ($condition as $condition_field => $value)
-		{
-			if (!$first)
-				$where_sql .= " AND ";
-			$first = false;
-			
-			$where_sql .= $condition_field . " = ?";
-		}
-	}
-	elseif (count($condition) == 1)
-	{
-		$where_sql =  key($condition) . " = ?";
-	}
+	if (is_null($conditions))
+		$conditions = array();
+	$where_sql = db_make_where($conditions);
 	
 	$stmt = $config['db']->prepare("SELECT " . $field . " FROM " . $table . " where " . $where_sql);
 	
@@ -482,5 +517,109 @@ function seconds_to_time_array($seconds)
 	$return['seconds'] = $seconds;
 	
 	return $return;
+}
+
+function get_recipes($param_conditions, $count = false, $pagination_values = null)
+{
+	$conditions = array();
+	
+	if ($count)
+		$recipes = db_get_count('recipes', null, $conditions);
+	else
+	{
+		$recipes = db_get_rows('recipes', null, $conditions,
+			array('limit' => PAGINATION_BLOCK, 'offset' => $pagination_values['offset']));
+	}
+	
+	return $recipes;
+}
+
+function truncate_string($string, $size = null, $end_string = "…")
+{
+	if (is_null($size))
+		$size = SIZE_TRUNCATE_TEXT;
+	
+	$return = $string;
+	
+	if (strlen($string) > $size)
+	{
+		$return = substr($string, 0, ($size - 1));
+		$return .= $end_string;
+	}
+	
+	return $string;
+}
+
+function pagination_get_values($count)
+{
+	$page = get_parameter('page', 1);
+	
+	$pages = (int)ceil($count / PAGINATION_BLOCK);
+	
+	$offset = ($page - 1) * PAGINATION_BLOCK;
+	
+	$current_page = (int)ceil($page/ PAGINATION_BLOCK);
+	$ini_page = (int)floor($current_page / NUM_PAGES) * NUM_PAGES;
+	$end_page = $ini_page + NUM_PAGES;
+	if ($end_page > $pages)
+		$end_page = $pages;
+	
+	return array
+		(
+			'page' => $page,
+			'pages' => $pages,
+			'offset' => $offset,
+			'ini_page' => $ini_page,
+			'current_page' => $current_page,
+			'end_page' => $end_page,
+		);
+}
+
+function print_pagination($pagination_values)
+{
+	if ($pagination_values['pages'] == 1)
+		return;
+	
+	?>
+	<div class="text-center">
+		<ul class="pagination">
+		<?php
+		if ($pagination_values['pages'] > NUM_PAGES)
+		{
+			?>
+			<li><a href="#">First</a></li>
+			<?php
+			if ($pagination_values['ini_page'] > 1)
+			{
+				?>
+				<li class="active"><a href="#">Previous</a></li>
+				<?php
+			}
+		}
+		
+		for ($i = $pagination_values['ini_page']; $i <= $pagination_values['end_page']; $i++)
+		{
+			?>
+			<li><a href="#"><?=$i;?></a></li>
+			<?php
+		}
+		
+		if ($pagination_values['pages'] > NUM_PAGES)
+		{
+			if ($pagination_values['pages'] > NUM_PAGES)
+			{
+				?>
+				<li class="active"><a href="#">Next</a></li>
+				<?php
+			}
+			?>
+			<li><a href="#">Last</a></li>
+			<?php
+		}
+		
+		?>
+		</ul>
+	</div>
+	<?php
 }
 ?>

@@ -25,7 +25,7 @@ function page($content = null)
 	$active = "class='active'";
 	$recipes_active =
 		$tags_active =
-		$create_recipe_active =
+		$recipe_form_active =
 		$login_active =
 		$user_active =
 		$about_active = "";
@@ -39,8 +39,11 @@ function page($content = null)
 			case 'login':
 				$login_active = $active;
 				break;
-			case 'create_recipe':
-				$create_recipe_active = $active;
+			case 'recipe_form':
+				$recipe_form_active = $active;
+				break;
+			case 'user':
+				$user_active = $active;
 				break;
 		}
 	}
@@ -95,7 +98,7 @@ function page($content = null)
 						<ul class="nav navbar-nav">
 							<li <?=$recipes_active;?>><a href='index.php?page=recipes'>Recipes</a></li>
 							<li <?=$tags_active;?>><a href='index.php?page=tags'>Tags</a></li>
-							<li <?=$create_recipe_active;?>><a href='index.php?page=create_recipe'>Create recipe</a></li>
+							<li <?=$recipe_form_active;?>><a href='index.php?page=recipe_form'>Create recipe</a></li>
 							<li <?=$about_active;?>><a href='index.php?page=about'>About</a></li>
 						</ul>
 						
