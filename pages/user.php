@@ -51,6 +51,7 @@ function show_user()
 			$count_recipes = get_recipes(array('id_user' => array('=' => $config['id_user'])), true);
 			$pagination_values = pagination_get_values($count_recipes);
 			$recipes = get_recipes(array('id_user' => array('=' => $config['id_user'])), false, $pagination_values);
+			
 			if (empty($recipes))
 			{
 			?>
@@ -61,7 +62,7 @@ function show_user()
 			}
 			else
 			{
-				print_pagination($pagination_values);
+				print_pagination($pagination_values, "index.php?page=user");
 			?>
 				<div class="list-group">
 				<?php

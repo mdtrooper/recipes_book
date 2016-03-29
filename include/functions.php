@@ -552,15 +552,14 @@ function truncate_string($string, $size = null, $end_string = "…")
 
 function pagination_get_values($count)
 {
-	$page = get_parameter('page', 1);
+	$page = get_parameter('pagination_page', 1);
 	
 	$pages = (int)ceil($count / PAGINATION_BLOCK);
 	
 	$offset = ($page - 1) * PAGINATION_BLOCK;
 	
-	$current_page = (int)ceil($page/ PAGINATION_BLOCK);
-	$ini_page = (int)floor($current_page / NUM_PAGES) * NUM_PAGES;
-	$end_page = $ini_page + NUM_PAGES;
+	$ini_page = (int)floor(($page - 1) / NUM_PAGES) * NUM_PAGES + 1;
+	$end_page = $ini_page + NUM_PAGES - 1;
 	if ($end_page > $pages)
 		$end_page = $pages;
 	
@@ -570,13 +569,13 @@ function pagination_get_values($count)
 			'pages' => $pages,
 			'offset' => $offset,
 			'ini_page' => $ini_page,
-			'current_page' => $current_page,
 			'end_page' => $end_page,
 		);
 }
 
-function print_pagination($pagination_values)
+function print_pagination($pagination_values, $url)
 {
+	debug($pagination_values, true);
 	if ($pagination_values['pages'] == 1)
 		return;
 	
@@ -584,36 +583,41 @@ function print_pagination($pagination_values)
 	<div class="text-center">
 		<ul class="pagination">
 		<?php
-		if ($pagination_values['pages'] > NUM_PAGES)
+		if ($pagination_values['ini_page'] > 1)
 		{
+			$previous = $pagination_values['ini_page'] - 1;
 			?>
-			<li><a href="#">First</a></li>
+			<li><a href="<?=$url;?>&pagination_page=1">First</a></li>
+			<li><a href="<?=$url;?>&pagination_page=<?=$previous;?>">Previous</a></li>
 			<?php
-			if ($pagination_values['ini_page'] > 1)
-			{
-				?>
-				<li class="active"><a href="#">Previous</a></li>
-				<?php
-			}
 		}
 		
 		for ($i = $pagination_values['ini_page']; $i <= $pagination_values['end_page']; $i++)
 		{
-			?>
-			<li><a href="#"><?=$i;?></a></li>
-			<?php
-		}
-		
-		if ($pagination_values['pages'] > NUM_PAGES)
-		{
-			if ($pagination_values['pages'] > NUM_PAGES)
+			if ($i == $pagination_values['page'])
 			{
 				?>
-				<li class="active"><a href="#">Next</a></li>
+				<li class="active">
+				<?php
+			}
+			else
+			{
+				?>
+				<li>
 				<?php
 			}
 			?>
-			<li><a href="#">Last</a></li>
+			<a href="<?=$url;?>&pagination_page=<?=$i;?>"><?=$i;?></a></li>
+			<?php
+		}
+		
+		if ($pagination_values['pages'] > $pagination_values['end_page'])
+		{
+			
+			$next = $pagination_values['end_page'] + 1;
+			?>
+			<li><a href="<?=$url;?>&pagination_page=<?=$next;?>">Next</a></li>
+			<li><a href="<?=$url;?>&pagination_page=<?=$pagination_values['pages'];?>">Last</a></li>
 			<?php
 		}
 		
