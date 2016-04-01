@@ -208,6 +208,24 @@ function db_get_count($table, $conditions = null)
 		return $row[0];
 }
 
+function db_get_rows_sql($sql)
+{
+	global $config;
+	
+	$return = array();
+	
+	if (!empty($sql))
+	{
+		$stmt = $config['db']->prepare($sql);
+		
+		$stmt->execute();
+		
+		$return = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	return $return;
+}
+
 function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
 {
 	global $config;
@@ -504,6 +522,25 @@ function save_recipe()
 	return $return;
 }
 
+function time_array_to_string($time)
+{
+	$return = "";
+	
+	if ($time['hours'] > 0) {
+		$return .= $time['hours'] . " h : ";
+	}
+	
+	if ($time['minutes'] > 0 || !empty($return)) {
+		$return .= $time['minutes'] . " m : ";
+	}
+	
+	if ($time['seconds'] > 0 || !empty($return)) {
+		$return .= $time['seconds'] . " s";
+	}
+	
+	return $return;
+}
+
 function seconds_to_time_array($seconds)
 {
 	$return = array('hours' => 0, 'minutes' => 0, 'seconds' => 0);
@@ -519,7 +556,7 @@ function seconds_to_time_array($seconds)
 	return $return;
 }
 
-function get_recipes($param_conditions, $count = false, $pagination_values = null)
+function get_recipes($conditions = null, $count = false, $pagination_values = null)
 {
 	$conditions = array();
 	

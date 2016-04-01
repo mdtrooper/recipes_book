@@ -45,12 +45,15 @@ function show_user()
 		</form>
 	</div>
 	<div class="panel panel-default">
-		<div class="panel-heading">User recipes</div>
+		<?php
+		$count_recipes = get_recipes(array('id_user' => array('=' => $config['id_user'])), true);
+		$pagination_values = pagination_get_values($count_recipes);
+		$recipes = get_recipes(array('id_user' => array('=' => $config['id_user'])), false, $pagination_values);
+		?>
+		<div class="panel-heading">User recipes <span class="badge"><?=$count_recipes;?></span></div>
 		<div class="panel-body">
 			<?php
-			$count_recipes = get_recipes(array('id_user' => array('=' => $config['id_user'])), true);
-			$pagination_values = pagination_get_values($count_recipes);
-			$recipes = get_recipes(array('id_user' => array('=' => $config['id_user'])), false, $pagination_values);
+			
 			
 			if (empty($recipes))
 			{
