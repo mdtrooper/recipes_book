@@ -49,72 +49,74 @@ function show_home()
 	
 	$temp = db_get_rows_sql("
 		SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
-			SUM(duration) AS total_duration
+			SUM(duration) AS total_duration, id_recipe
 		FROM steps
 		GROUP BY id_recipe
 		ORDER BY total_duration DESC
 		LIMIT 1;
 	");
-	$recipe_large_duration = "";
+	$recipe_large_duration = array();
 	if (!empty($temp))
 	{
 		$time = time_array_to_string(seconds_to_time_array($most_recipe_duration = $temp[0]['total_duration']));
 		
-		$recipe_large_duration = $temp[0]['recipe'] . " " . $time;
+		$recipe_large_duration[0] = $temp[0]['id_recipe'];
+		$recipe_large_duration[1] = $temp[0]['recipe'];
+		$recipe_large_duration[2] = $time;
 	}
 	
 	$temp = db_get_rows_sql("
-		SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
+		SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe, id_recipe,
 			SUM(duration) AS total_duration
 		FROM steps
 		GROUP BY id_recipe
 		ORDER BY total_duration ASC
 		LIMIT 1;
 	");
-	$recipe_short_duration = "";
+	$recipe_short_duration = array();
 	if (!empty($temp))
 	{
 		$time = time_array_to_string(seconds_to_time_array($most_recipe_duration = $temp[0]['total_duration']));
 		
-		$recipe_short_duration = $temp[0]['recipe'] . " " . $time;
+		$recipe_short_duration = array($temp[0]['id_recipe'], $temp[0]['recipe'], $time);
 	}
 	
 	$temp = db_get_rows_sql("
-		SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
+		SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe, id_recipe,
 			COUNT(id) AS count
 		FROM steps
 		GROUP BY id_recipe
 		ORDER BY count DESC
 		LIMIT 1;
 	");
-	$recipe_most_steps = "";
+	$recipe_most_steps = array();
 	if (!empty($temp))
-		$recipe_most_steps = $temp[0]['recipe'] . " " . $temp[0]['count'] . " steps";
+		$recipe_most_steps = array($temp[0]['id_recipe'], $temp[0]['recipe'], $temp[0]['count'] . " steps");
 	
 	$temp = db_get_rows_sql("
 		SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
-			COUNT(id) AS count
+			COUNT(id) AS count, id_recipe
 		FROM steps
 		GROUP BY id_recipe
 		ORDER BY count ASC
 		LIMIT 1;
 	");
-	$recipe_less_steps = "";
+	$recipe_less_steps = array();
 	if (!empty($temp))
-		$recipe_less_steps = $temp[0]['recipe'] . " " . $temp[0]['count'] . " steps";
+		$recipe_less_steps = array($temp[0]['id_recipe'], $temp[0]['recipe'], $temp[0]['count'] . " steps");
 	
 	
 	$temp = db_get_rows_sql("
 		SELECT (SELECT user FROM users WHERE users.id = id_user) AS user,
-			COUNT(id) AS count
+			COUNT(id) AS count, id_user
 		FROM recipes
 		GROUP BY id_user
 		ORDER BY count DESC
 		LIMIT 1;
 	");
-	$user_most_recipes = "";
+	$user_most_recipes = array();
 	if (!empty($temp))
-		$user_most_recipes = $temp[0]['user'] . " " . $temp[0]['count'] . " recipes";
+		$user_most_recipes = array($temp[0]['id_user'], $temp[0]['user'], $temp[0]['count'] . " recipes");
 	
 	ob_start();
 	?>
@@ -127,65 +129,114 @@ function show_home()
 	<div class="panel panel-default">
 		<div class="panel-heading">Recipes</div>
 		<div class="panel-body">
-			<ul>
-				<li>Total Recipes: <span class="badge"><?=$total_recipes;?></span></li>
-				<li>Total tags: <span class="badge"><?=$total_tags;?></span></li>
-				<li>Total users: <span class="badge"><?=$total_users;?></span></li>
-				<li>Total ingredients: <span class="badge"><?=$total_ingredients;?></span></li>
-				<li>Tag most used: <?=$most_tag_used;?></li>
-				<li>Ingredient most used: <?=$most_ingredient_used;?></li>
-				<li>Recipe most large duration: <?=$recipe_large_duration;?></li>
-				<li>Recipe most short duration: <?=$recipe_short_duration;?></li>
-				<li>Recipe most steps: <?=$recipe_most_steps;?></li>
-				<li>Recipe less steps: <?=$recipe_less_steps;?></li>
-				<li>User with most recipes: <?=$user_most_recipes;?></li>
-			</ul>
+			<div class="row">
+				<div class="col-md-10"><strong>Total Recipes:</strong></div>
+				<div class="col-md-2"><span class='badge'><?=$total_recipes;?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-10"><strong>Total tags:</strong></div>
+				<div class="col-md-2"><span class='badge'><?=$total_tags;?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-10"><strong>Total users:</strong></div>
+				<div class="col-md-2"><span class='badge'><?=$total_users;?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-10"><strong>Total ingredients:</strong></div>
+				<div class="col-md-2"><span class='badge'><?=$total_ingredients;?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-10"><strong>Tag most used:</strong></div>
+				<div class="col-md-2"><?=$most_tag_used;?></div>
+			</div>
+			<div class="row">
+				<div class="col-md-10"><strong>Ingredient most used:</strong></div>
+				<div class="col-md-2"><?=$most_ingredient_used;?></div>
+			</div>
+			<div class="row">
+				<div class="col-md-8"><strong>Recipe most large duration:</strong></div>
+				<div class="col-md-2"><a href="index.php?page=recipe&id=<?=$recipe_large_duration[0];?>"><?=$recipe_large_duration[1];?></a></div>
+				<div class="col-md-2"><span class='badge'><?=$recipe_large_duration[2];?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-8"><strong>Recipe most short duration:</strong></div>
+				<div class="col-md-2"><a href="index.php?page=recipe&id=<?=$recipe_short_duration[0];?>"><?=$recipe_short_duration[1];?></a></div>
+				<div class="col-md-2"><span class='badge'><?=$recipe_short_duration[2];?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-8"><strong>Recipe most steps:</strong></div>
+				<div class="col-md-2"><a href="index.php?page=recipe&id=<?=$recipe_most_steps[0];?>"><?=$recipe_most_steps[1];?></a></div>
+				<div class="col-md-2"><span class='badge'><?=$recipe_most_steps[2];?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-8"><strong>Recipe less steps:</strong></div>
+				<div class="col-md-2"><a href="index.php?page=recipe&id=<?=$recipe_less_steps[0];?>"><?=$recipe_less_steps[1];?></a></div>
+				<div class="col-md-2"><span class='badge'><?=$recipe_less_steps[2];?></span></div>
+			</div>
+			<div class="row">
+				<div class="col-md-8"><strong>User with most recipes:</strong></div>
+				<div class="col-md-2"><a href="index.php?page=recipes&id_user=<?=$user_most_recipes[0];?>"><?=$user_most_recipes[1];?></a></div>
+				<div class="col-md-2"><span class='badge'><?=$user_most_recipes[2];?></span></div>
+			</div>
 		</div>
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">Top 5 Recipes</div>
 		<div class="panel-body">
-			<ul>
-				<?php
-				$temp = db_get_rows_sql("
-					SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
-						(SUM(points) / COUNT(id_user)) AS average
-					FROM points
-					GROUP BY id_recipe
-					ORDER BY average DESC
-					LIMIT 5;
-				");
-				if (!empty($temp))
+			<?php
+			$temp = db_get_rows_sql("
+				SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
+					(SUM(points) / COUNT(id_user)) AS average, id_recipe
+				FROM points
+				GROUP BY id_recipe
+				ORDER BY average DESC
+				LIMIT 5;
+			");
+			if (!empty($temp))
+			{
+				foreach ($temp as $row)
 				{
-					foreach ($temp as $row)
-					{
-						echo "<li>" . $row['recipe'] . " <span class='badge'>" . round($row['average'], 2) . "</span></li>";
-					}
+					?>
+					<div class="row">
+						<div class="col-md-10">
+							<a href="index.php?page=recipe&id=<?=$row['id_recipe'];?>">
+								<?=$row['recipe'];?>
+							</a>
+						</div>
+						<div class="col-md-2"><span class='badge'><?=round($row['average'], 2);?></span></div>
+					</div>
+					<?php
 				}
-				?>
-			</ul>
+			}
+			?>
 		</div>
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">Last 5 Recipes</div>
 		<div class="panel-body">
-			<ul>
-				<?php
-				$temp = db_get_rows_sql("
-					SELECT title
-					FROM recipes
-					ORDER BY id DESC
-					LIMIT 5;
-				");
-				if (!empty($temp))
+			<?php
+			$temp = db_get_rows_sql("
+				SELECT title, id
+				FROM recipes
+				ORDER BY id DESC
+				LIMIT 5;
+			");
+			if (!empty($temp))
+			{
+				foreach ($temp as $row)
 				{
-					foreach ($temp as $row)
-					{
-						echo "<li>" . $row['title'] . "</li>";
-					}
+					?>
+					<div class="row">
+						<div class="col-md-12">
+							<a href="index.php?page=recipe&id=<?=$row['id'];?>">
+								<?=$row['title'];?>
+							</a>
+						</div>
+					</div>
+					<?php
 				}
-				?>
-			</ul>
+			}
+			?>
 		</div>
 	</div>
 	<?php
