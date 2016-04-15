@@ -145,4 +145,28 @@ function page($content = null)
 	</html>
 	<?php
 }
+
+function points_to_stars($points = 0)
+{
+	?>
+	<div>
+		<?php
+		for ($i = 0; $i < $points; $i++)
+		{
+			?>
+			<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+			<?php
+		}
+		?>
+		<?php
+		for ($i = 0; $i < (MAX_POINTS - $points); $i++)
+		{
+			?>
+			<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+			<?php
+		}
+		?>
+	</div>
+	<?php
+}
 ?>

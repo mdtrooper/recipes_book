@@ -23,6 +23,7 @@ define("SECONDS_1_MINUTE", 60);
 define("SIZE_TRUNCATE_TEXT", 20);
 define("PAGINATION_BLOCK", 5);
 define("NUM_PAGES", 5);
+define("MAX_POINTS", 5);
 ////////////////////////////////////////////////////////////////////////
 
 function get_parameter($parameter, $default = null)
@@ -607,6 +608,7 @@ function get_recipe($id = 0)
 			SELECT *
 			FROM rel_ingredients_recipes
 			INNER JOIN ingredients ON ingredients.id = rel_ingredients_recipes.id_ingredient
+			INNER JOIN measure_types ON measures_types.id = rel_ingredients_recipes.id_measure_type
 			WHERE id_recipe = " . $recipe['id'] . ";");
 		$return['ingredients'] = $ingredients;
 		
@@ -616,11 +618,32 @@ function get_recipe($id = 0)
 			WHERE id_recipe = " . $recipe['id'] . "
 			ORDER BY position ASC;");
 		$return['steps'] = $steps;
+		
+		$return['points'] = get_avg_point_from_recipe($id);
 	}
 	
 	debug($return, true);
 	
 	return $return;
+}
+
+function get_avg_point_from_recipe($id_recipe = 0)
+{
+	$temp = db_get_rows_sql("
+		SELECT
+			(SUM(points) / COUNT(id_user)) AS average
+		FROM points
+		WHERE id_recipe = " . $id_recipe . ";
+	");
+	
+	if (empty($temp))
+	{
+		return 0;
+	}
+	else
+	{
+		return $temp[0]['average'];
+	}
 }
 
 function get_recipes($conditions = null, $count = false, $pagination_values = null)

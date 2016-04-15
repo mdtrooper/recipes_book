@@ -59,7 +59,12 @@ function show_recipe()
 					<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
 				</span>
 			</div>
-			<div class="col-md-9 text-uppercase">
+			<div class="col-md-2">
+				<?php
+				points_to_stars($recipe['points']);
+				?>
+			</div>
+			<div class="col-md-7 text-uppercase">
 				<h3><?=$recipe['title'];?></h3>
 			</div>
 			<div class="col-md-1">
@@ -77,13 +82,38 @@ function show_recipe()
 			else
 			{
 			?>
-			<h3><?=$recipe['title'];?></h3>
+			<div class="col-md-1">
+				<span class='badge'>
+					<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
+				</span>
+			</div>
+			<div class="col-md-2">
+				<?php
+				points_to_stars($recipe['points']);
+				?>
+			</div>
+			<div class="col-md-8 text-uppercase">
+				<h3><?=$recipe['title'];?></h3>
+			</div>
+			<div class="col-md-1">
+				<span class='badge'>
+					<h3><?=count($recipe['steps']) . " steps";?></h3>
+				</span>
+			</div>
 			<?php
 			}
 			?>
 		</div>
 		<div class="panel-body">
 			<?=$recipe['description'];?>
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-heading row">
+			<h4>Steps</h4>
+		</div>
+		<div class="panel-body">
 		</div>
 	</div>
 	<?php
