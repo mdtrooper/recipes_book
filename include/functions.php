@@ -120,12 +120,19 @@ function login()
 	$password = md5(get_parameter('password', ''));
 	
 	$validate = (bool)db_get_value('users', 'validate',
-		array('user' => $user, 'password' => $password));
+		array
+		(
+			'user' => array("=" => $user),
+			'password' => array("=" => $password)
+		));
+	
+	debug($validate, true);
 	
 	if ($validate)
 	{
 		$config['user'] = $user;
-		$config['id_user'] = db_get_value('users', 'id', array('user' => $user));
+		$config['id_user'] = db_get_value('users', 'id',
+			array('user' => array("=" => $user)));
 		set_session_var('user', $user);
 		set_session_var('id_user', $config['id_user']);
 	}
@@ -312,7 +319,7 @@ function db_insert($table, $values)
 	return $config['db']->lastInsertId("id");
 }
 
-function db_get_value($table, $field, $condition)
+function db_get_value($table, $field, $conditions)
 {
 	global $config;
 	
@@ -320,12 +327,18 @@ function db_get_value($table, $field, $condition)
 		$conditions = array();
 	$where_sql = db_make_where($conditions);
 	
-	$stmt = $config['db']->prepare("SELECT " . $field . " FROM " . $table . " where " . $where_sql);
+	$stmt = $config['db']->
+		prepare("
+			SELECT " . $field . "
+			FROM " . $table . "
+			WHERE " . $where_sql);
+	
+	$columns_type = db_get_columns_info($table);
 	
 	$i = 1;
-	foreach ($condition as $value_condition)
+	foreach ($conditions as $column => $condition)
 	{
-		$stmt->bindValue($i, $value_condition, PDO::PARAM_STR);
+		$stmt->bindValue($i, reset($condition), $columns_type[$column]);
 		$i++;
 	}
 	
@@ -409,7 +422,7 @@ function save_recipe()
 	$return = true;
 	
 	$id_user = db_get_value('users', 'id',
-		array('user' => $config['user']));
+		array('user' => array("=" => $config['user'])));
 	
 	$json_recipe = get_parameter("data");
 	
@@ -435,7 +448,7 @@ function save_recipe()
 		foreach ($recipe['tags'] as $tag)
 		{
 			$id_tag = (int)db_get_value('tags', 'id',
-				array('tag' => $tag));
+				array('tag' => array("=" => $tag)));
 			
 			if ($id_tag == 0)
 			{
@@ -527,15 +540,23 @@ function time_array_to_string($time)
 	$return = "";
 	
 	if ($time['hours'] > 0) {
-		$return .= $time['hours'] . " h : ";
+		$return .= $time['hours'] . " h";
 	}
 	
-	if ($time['minutes'] > 0 || !empty($return)) {
-		$return .= $time['minutes'] . " m : ";
+	if ($time['minutes'] != 0 || $time['seconds'] != 0) {
+		if ($time['minutes'] > 0 || !empty($return)) {
+			if (!empty($return))
+				$return .= " : ";
+			$return .= $time['minutes'] . " m";
+		}
 	}
 	
-	if ($time['seconds'] > 0 || !empty($return)) {
-		$return .= $time['seconds'] . " s";
+	if ($time['seconds'] != 0) {
+		if ($time['seconds'] > 0 || !empty($return)) {
+			if (!empty($return))
+				$return .= " : ";
+			$return .= $time['seconds'] . " s";
+		}
 	}
 	
 	return $return;
@@ -552,6 +573,52 @@ function seconds_to_time_array($seconds)
 	
 	$seconds -= ($return['minutes'] * SECONDS_1_MINUTE);
 	$return['seconds'] = $seconds;
+	
+	return $return;
+}
+
+function get_recipe($id = 0)
+{
+	$return = array();
+	
+	$recipe = db_get_rows('recipes', null, array('id' => array("=" => $id)));
+	
+	if (empty($recipe))
+	{
+		return $return;
+	}
+	else
+	{
+		$recipe = $recipe[0];
+		
+		$return = $recipe;
+		
+		$return['user'] = db_get_value('users', 'user',
+			array('id' => array('=' => $recipe['id_user'])));
+		
+		$tags = db_get_rows_sql("
+			SELECT id_tag, tag
+			FROM rel_tags_recipes
+			INNER JOIN tags ON tags.id = rel_tags_recipes.id_tag
+			WHERE id_recipe = " . $recipe['id'] . ";");
+		$return['tags'] = $tags;
+		
+		$ingredients = db_get_rows_sql("
+			SELECT *
+			FROM rel_ingredients_recipes
+			INNER JOIN ingredients ON ingredients.id = rel_ingredients_recipes.id_ingredient
+			WHERE id_recipe = " . $recipe['id'] . ";");
+		$return['ingredients'] = $ingredients;
+		
+		$steps = db_get_rows_sql("
+			SELECT  *
+			FROM steps
+			WHERE id_recipe = " . $recipe['id'] . "
+			ORDER BY position ASC;");
+		$return['steps'] = $steps;
+	}
+	
+	debug($return, true);
 	
 	return $return;
 }
@@ -612,7 +679,6 @@ function pagination_get_values($count)
 
 function print_pagination($pagination_values, $url)
 {
-	debug($pagination_values, true);
 	if ($pagination_values['pages'] == 1)
 		return;
 	

@@ -118,6 +118,8 @@ switch ($page)
 		show_user();
 		break;
 	case 'recipe':
+		require_once("pages/recipe.php");
+		show_recipe();
 		break;
 }
 ?>

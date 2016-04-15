@@ -76,28 +76,26 @@ function show_recipe_form()
 			$ingredients[$i]['name'] = $ingredient['id'];
 			$ingredients[$i]['id'] =
 				db_get_value('ingredients', 'ingredient',
-					array('ingredient' => $ingredient['id']));
+					array('ingredient' => array("=" => $ingredient['id'])));
 		}
 		else
 		{
 			$ingredients[$i]['name'] =
 				db_get_value('ingredients', 'ingredient',
-					array('id' => $ingredient['id']));
+					array('id' => array("=" => $ingredient['id'])));
 		}
 		
 		if (!is_int($ingredient['measure_type']))
 		{
 			$ingredients[$i]['measure_type'] =
 				db_get_value('measure_types', 'id',
-					array('measure_type' => $ingredient['measure_type']));
+					array('measure_type' => array("=" => $ingredient['measure_type'])));
 		}
 	}
 	
 	$steps = array();
 	if (isset($data['steps']))
 		$steps = $data['steps'];
-	
-	debug($steps, true);
 	
 	foreach ($steps as $i => $step)
 	{
