@@ -47,76 +47,205 @@ function show_recipe()
 	}
 	else
 	{
-	?>
-	<div class="panel panel-default">
-		<div class="panel-heading row">
-			<?php
-			if ($config['id_user'] == $recipe['id_user'])
-			{
-			?>
-			<div class="col-md-1">
-				<span class='badge'>
-					<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
-				</span>
-			</div>
-			<div class="col-md-2">
+		?>
+		<div class="panel panel-default">
+			<div class="panel-heading row">
 				<?php
-				points_to_stars($recipe['points']);
+				if ($config['id_user'] == $recipe['id_user'])
+				{
+				?>
+				<div class="col-md-1">
+					<a href="index.php?page=recipes&duration=<?=$recipe['duration'];?>">
+					<span class='badge'>
+						<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
+					</a>
+				</div>
+				<div class="col-md-1">
+					<a href="index.php?page=recipes&servings=<?=$recipe['servings'];?>">
+					<span class='badge'>
+						<h3>
+							<?=$recipe['servings'];?>
+							<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
+						</h3>
+					</a>
+				</div>
+				<div class="col-md-2">
+					<?php
+					points_to_stars($recipe['points']);
+					?>
+				</div>
+				<div class="col-md-6 text-uppercase">
+					<h3><?=$recipe['title'];?></h3>
+				</div>
+				<div class="col-md-1">
+					<a href="index.php?page=recipes&steps=<?=$recipe['steps'];?>">
+						<span class='badge'>
+							<h3><?=count($recipe['steps']) . " steps";?></h3>
+						</span>
+					</a>
+				</div>
+				<div class="col-md-1">
+					<a href="index.php?page=recipe_form&action=edit_recipe&id_recipe=<?=$id;?>" class="btn btn-default btn-lg" aria-label="Left Align">
+						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+					</a>
+				</div>
+				<?php
+				}
+				else
+				{
+				?>
+				<div class="col-md-1">
+					<a href="index.php?page=recipes&duration=<?=$recipe['duration'];?>">
+					<span class='badge'>
+						<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
+					</span>
+					</a>
+				</div>
+				<div class="col-md-1">
+					<a href="index.php?page=recipes&servings=<?=$recipe['servings'];?>">
+					<span class='badge'>
+						<h3>
+							<?=$recipe['servings'];?>
+							<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
+						</h3>
+						
+					</a>
+				</div>
+				<div class="col-md-2">
+					<?php
+					points_to_stars($recipe['points']);
+					?>
+				</div>
+				<div class="col-md-7 text-uppercase">
+					<h3><?=$recipe['title'];?></h3>
+				</div>
+				<div class="col-md-1">
+					<a href="index.php?page=recipes&steps=<?=$recipe['steps'];?>">
+						<span class='badge'>
+							<h3><?=count($recipe['steps']) . " steps";?></h3>
+						</span>
+					</a>
+				</div>
+				<?php
+				}
 				?>
 			</div>
-			<div class="col-md-7 text-uppercase">
-				<h3><?=$recipe['title'];?></h3>
+			<div class="panel-body">
+				<?=$recipe['description'];?>
 			</div>
-			<div class="col-md-1">
-				<span class='badge'>
-					<h3><?=count($recipe['steps']) . " steps";?></h3>
-				</span>
-			</div>
-			<div class="col-md-1">
-				<button type="button" class="btn btn-default btn-lg" aria-label="Left Align">
-					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-				</button>
-			</div>
-			<?php
-			}
-			else
-			{
+		</div>
+		
+		
+		<table class="table table-striped table-hover">
+			<caption class="row">
+				<div class="col-md-9">
+					<strong>TAGS</strong>
+				</div>
+				<div class="col-md-3">
+					<a href="index.php?page=recipes&similar=1&type=tags&id_recipe=<?=$id;?>" class="btn btn-default btn-mg" aria-label="Left Align">
+						Search similar recipes (in tags) 
+						<span class="glyphicon  glyphicon glyphicon-search" aria-hidden="true"></span>
+					</a>
+				</div>
+			</caption>
+			<tr>
+				<td>
+					<?php
+					$first = true;
+					foreach ($recipe['tags'] as $tag)
+					{
+						if (!$first)
+							echo " , ";
+						$first = false;
+						
+						?>
+						<a href="index.php?page=recipes&id_tag=<?=$tag['id_tag'];?>"><?=$tag['tag'];?></a>
+						<?php
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		
+		<?php
+		if (!empty($recipe['ingredients']))
+		{
 			?>
-			<div class="col-md-1">
-				<span class='badge'>
-					<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
-				</span>
-			</div>
-			<div class="col-md-2">
-				<?php
-				points_to_stars($recipe['points']);
-				?>
-			</div>
-			<div class="col-md-8 text-uppercase">
-				<h3><?=$recipe['title'];?></h3>
-			</div>
-			<div class="col-md-1">
-				<span class='badge'>
-					<h3><?=count($recipe['steps']) . " steps";?></h3>
-				</span>
-			</div>
+			<table class="table table-striped table-hover">
+				<caption class="row">
+					<div class="col-md-9">
+						<strong>INGREDIENTS</strong>
+					</div>
+					<div class="col-md-3">
+						<a href="index.php?page=recipes&similar=1&type=ingredients&id_recipe=<?=$id;?>" class="btn btn-default btn-mg" aria-label="Left Align">
+							Search similar recipes (in ingredients) 
+							<span class="glyphicon  glyphicon glyphicon-search" aria-hidden="true"></span>
+						</a>
+					</div>
+				</caption>
+				<tbody>
+					<?php
+					foreach ($recipe['ingredients'] as $ingredient)
+					{
+					?>
+					<tr class="row">
+						<td class="col-md-1">
+							<span class='badge'>
+								<?=$ingredient['amount'] . " " . $ingredient['measure_type'];?>
+							</span>
+						</td>
+						<td class="col-md-3">
+							<a href="index.php?page=recipes&id_ingredient=<?=$ingredient['id_ingredient'];?>">
+							<?=$ingredient['ingredient'];?>
+							</a>
+						</td>
+						<td class="col-md-8">
+							<?=$ingredient['notes'];?>
+						</td>
+					</tr>
+					<?php
+					}
+					?>
+				</tbody>
+			</table>
 			<?php
-			}
+		}
+		
+		if (!empty($recipe['steps']))
+		{
 			?>
-		</div>
-		<div class="panel-body">
-			<?=$recipe['description'];?>
-		</div>
-	</div>
-	
-	<div class="panel panel-default">
-		<div class="panel-heading row">
-			<h4>Steps</h4>
-		</div>
-		<div class="panel-body">
-		</div>
-	</div>
-	<?php
+			<table class="table table-striped table-hover">
+				<caption>
+					<strong>STEPS</strong>
+				</caption>
+				<tbody>
+					<?php
+					foreach ($recipe['steps'] as $step)
+					{
+					?>
+					<tr class="row">
+						<td class="col-md-1">
+							<strong>
+								<?=$step['position'];?>º
+							</strong>
+						</td>
+						<td class="col-md-1">
+							<span class='badge'>
+								<?=time_array_to_string(seconds_to_time_array($step['duration']));?>
+							</span>
+						</td>
+						<td class="col-md-10">
+							<?=$step['step'];?>
+						</td>
+					</tr>
+					<?php
+					}
+					?>
+				</tbody>
+			</table>
+			<?php
+		}
+		
 	}
 	$content["body"] = ob_get_clean();
 	

@@ -608,7 +608,7 @@ function get_recipe($id = 0)
 			SELECT *
 			FROM rel_ingredients_recipes
 			INNER JOIN ingredients ON ingredients.id = rel_ingredients_recipes.id_ingredient
-			INNER JOIN measure_types ON measures_types.id = rel_ingredients_recipes.id_measure_type
+			INNER JOIN measure_types ON measure_types.id = rel_ingredients_recipes.id_measure_type
 			WHERE id_recipe = " . $recipe['id'] . ";");
 		$return['ingredients'] = $ingredients;
 		

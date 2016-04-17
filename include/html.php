@@ -148,6 +148,7 @@ function page($content = null)
 
 function points_to_stars($points = 0)
 {
+	$points = (int)$points;
 	?>
 	<div>
 		<?php
