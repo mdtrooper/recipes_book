@@ -578,6 +578,13 @@ function seconds_to_time_array($seconds)
 	return $return;
 }
 
+function get_votes_user($id_recipe)
+{
+	$return = 0;
+	
+	return $return;
+}
+
 function get_recipe($id = 0)
 {
 	$return = array();

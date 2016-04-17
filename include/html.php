@@ -150,7 +150,7 @@ function points_to_stars($points = 0)
 {
 	$points = (int)$points;
 	?>
-	<div>
+	<span>
 		<?php
 		for ($i = 0; $i < $points; $i++)
 		{
@@ -167,7 +167,7 @@ function points_to_stars($points = 0)
 			<?php
 		}
 		?>
-	</div>
+	</span>
 	<?php
 }
 ?>

@@ -70,9 +70,26 @@ function show_recipe()
 					</a>
 				</div>
 				<div class="col-md-2">
-					<?php
-					points_to_stars($recipe['points']);
-					?>
+					<div>
+						<span id="points">
+							<?php
+							points_to_stars($recipe['points']);
+							?>
+						</span>
+						<span id="votation_points" style="display: none;">
+							<input class="form-control" type="text" value="<?=get_votes_user($id);?>" size="1" name="vote_points">
+						</span>
+					</div>
+					<div>
+						<span class="btn-group" role="group">
+							<a href="#" onclick="show_votation_input();" class="btn btn-default">
+								<span class="glyphicon glyphicon-flash" aria-hidden="true"></span>
+							</a>
+							<a href="index.php?page=recipes&points=<?=$recipe['points'];?>" class="btn btn-default">
+								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+							</a>
+						</span>
+					</div>
 				</div>
 				<div class="col-md-6 text-uppercase">
 					<h3><?=$recipe['title'];?></h3>
@@ -115,6 +132,9 @@ function show_recipe()
 					<?php
 					points_to_stars($recipe['points']);
 					?>
+					<a href="index.php?page=recipes&points=<?=$recipe['points'];?>" class="btn btn-default">
+						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					</a>
 				</div>
 				<div class="col-md-7 text-uppercase">
 					<h3><?=$recipe['title'];?></h3>
@@ -243,6 +263,28 @@ function show_recipe()
 					?>
 				</tbody>
 			</table>
+			<script type="text/javascript" language="javascript">
+				function show_votation_input()
+				{
+					$("#points").toggle();
+					$("#votation_points").toggle();
+				}
+				
+				$(
+					function()
+					{
+						$("input[name='vote_points']").TouchSpin
+						(
+							{
+								min: 0,
+								max: 5,
+								boostat: 5,
+								maxboostedstep: 10,
+							}
+						);
+					}
+				);
+			</script>
 			<?php
 		}
 		
