@@ -48,6 +48,9 @@ if ($ajax)
 			case "get_ingredients":
 				ajax_get_ingredients();
 				break;
+			case "vote_user":
+				ajax_vote_user();
+				break;
 		}
 	}
 	

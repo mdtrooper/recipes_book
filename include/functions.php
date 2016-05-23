@@ -127,8 +127,6 @@ function login()
 			'password' => array("=" => $password)
 		));
 	
-	debug($validate, true);
-	
 	if ($validate)
 	{
 		$config['user'] = $user;
@@ -174,10 +172,10 @@ function db_make_where($conditions)
 			
 			switch (key($condition)) {
 				case '=':
-					$where_sql .= $conditions_field . " = ?";
+					$where_sql .= $conditions_field . " = :where_" . $conditions_field;
 					break;
 				case 'like':
-					$where_sql .= $conditions_field . " like ?";
+					$where_sql .= $conditions_field . " like :where_" . $conditions_field;
 					break;
 			}
 		}
@@ -199,11 +197,10 @@ function db_get_count($table, $conditions = null)
 		FROM " . $table . "
 		WHERE " . $where_sql);
 	
-	$i = 1;
-	foreach ($conditions as $condition)
+	$columns_type = db_get_columns_info($table);
+	foreach ($conditions as $column => $condition)
 	{
-		$stmt->bindValue($i, reset($condition), PDO::PARAM_STR);
-		$i++;
+		$stmt->bindValue(":where_" .$column, reset($condition), $columns_type[$column]);
 	}
 	
 	$stmt->execute();
@@ -264,11 +261,10 @@ function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
 		WHERE " . $where_sql . "
 		" . $limit_sql);
 	
-	$i = 1;
-	foreach ($conditions as $condition)
+	$columns_type = db_get_columns_info($table);
+	foreach ($conditions as $column => $condition)
 	{
-		$stmt->bindValue($i, reset($condition), PDO::PARAM_STR);
-		$i++;
+		$stmt->bindValue(":where_" .$column, reset($condition), $columns_type[$column]);
 	}
 	
 	$stmt->execute();
@@ -297,6 +293,38 @@ function db_get_columns_info($table)
 	}
 	
 	return $return;
+}
+
+function db_update($table, $values, $conditions)
+{
+	global $config;
+	
+	$columns_info = db_get_columns_info($table);
+	
+	if (is_null($conditions))
+		$conditions = array();
+	$where_sql = db_make_where($conditions);
+	
+	$sql = "UPDATE $table
+		SET " . implode(",", array_map(function($v) { return "$v = :$v";}, array_keys($values))) . "
+		WHERE $where_sql";
+	
+	$config['db']->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+	
+	$stmt = $config['db']->prepare($sql);
+	
+	foreach ($values as $field => $value)
+	{
+		$stmt->bindValue(":" . $field, $value, $columns_info[$field]);
+	}
+	
+	$columns_type = db_get_columns_info($table);
+	foreach ($conditions as $column => $condition)
+	{
+		$stmt->bindValue(":where_" .$column, reset($condition), $columns_type[$column]);
+	}
+	
+	$stmt->execute();
 }
 
 function db_insert($table, $values)
@@ -335,12 +363,9 @@ function db_get_value($table, $field, $conditions)
 			WHERE " . $where_sql);
 	
 	$columns_type = db_get_columns_info($table);
-	
-	$i = 1;
 	foreach ($conditions as $column => $condition)
 	{
-		$stmt->bindValue($i, reset($condition), $columns_type[$column]);
-		$i++;
+		$stmt->bindValue(":where_" . $column, reset($condition), $columns_type[$column]);
 	}
 	
 	$stmt->execute();
@@ -578,18 +603,59 @@ function seconds_to_time_array($seconds)
 	return $return;
 }
 
+function vote_recipe($id_recipe, $points)
+{
+	global $config;
+	
+	$exists = (bool)db_get_value('points', 'points', array
+		(
+			'id_recipe' => array('=' => $id_recipe)
+		)
+	);
+	
+	if ($exists)
+	{
+		db_get_value('points', 'points', array('id' => array('=' => 555)));
+		
+		db_update('points', array('points' => $points),
+			array
+			(
+				'id_recipe' =>  array('=' => $id_recipe),
+				'id_user' =>  array('=' => $config['id_user'])
+			)
+		);
+	}
+	else
+	{
+		db_insert('points',
+			array(
+				'id_recipe' => $id_recipe,
+				'points' => $points,
+				'id_user' => $config['id_user']));
+	}
+}
+
 function get_votes_user($id_recipe)
 {
-	$return = 0;
+	global $config;
 	
-	return $return;
+	$points = db_get_value('points', 'points',
+		array
+		(
+			'id_recipe' => array('=' => $id_recipe),
+			'id_user' => array('=' => $config['id_user']),
+		)
+	);
+	
+	return (int)$points;
 }
 
 function get_recipe($id = 0)
 {
 	$return = array();
 	
-	$recipe = db_get_rows('recipes', null, array('id' => array("=" => $id)));
+	$recipe = db_get_rows('recipes', null,
+		array('id' => array("=" => $id)));
 	
 	if (empty($recipe))
 	{
@@ -627,11 +693,29 @@ function get_recipe($id = 0)
 		$return['steps'] = $steps;
 		
 		$return['points'] = get_avg_point_from_recipe($id);
+		$return['count_votes'] = get_count_votes($id);
 	}
 	
-	debug($return, true);
-	
 	return $return;
+}
+
+function get_count_votes($id_recipe = 0)
+{
+	$temp = db_get_rows_sql("
+		SELECT
+			COUNT(id_user) AS count
+		FROM points
+		WHERE id_recipe = " . $id_recipe . ";
+	");
+	
+	if (empty($temp))
+	{
+		return 0;
+	}
+	else
+	{
+		return $temp[0]['count'];
+	}
 }
 
 function get_avg_point_from_recipe($id_recipe = 0)

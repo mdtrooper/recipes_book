@@ -73,7 +73,7 @@ function show_recipe()
 					<div>
 						<span id="points">
 							<?php
-							points_to_stars($recipe['points']);
+							points_to_stars($recipe['points'], $recipe['count_votes']);
 							?>
 						</span>
 						<span id="votation_points" style="display: none;">
@@ -83,9 +83,10 @@ function show_recipe()
 					<div>
 						<span class="btn-group" role="group">
 							<a href="#" onclick="show_votation_input();" class="btn btn-default">
-								<span class="glyphicon glyphicon-flash" aria-hidden="true"></span>
+								<span id="vote_button" class="glyphicon glyphicon-flash" aria-hidden="true"></span>
+								<span id="back_vote_button" class="glyphicon glyphicon-arrow-left" aria-hidden="true" style="display:none;"></span>
 							</a>
-							<a href="index.php?page=recipes&points=<?=$recipe['points'];?>" class="btn btn-default">
+							<a href="index.php?page=recipes&points=<?=round($recipe['points'], 2);?>" class="btn btn-default">
 								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 							</a>
 						</span>
@@ -268,6 +269,14 @@ function show_recipe()
 				{
 					$("#points").toggle();
 					$("#votation_points").toggle();
+					
+					$("#vote_button").toggle();
+					$("#back_vote_button").toggle();
+				}
+				
+				function refresh_stars(stars)
+				{
+					$("#stars").html(stars);
 				}
 				
 				$(
@@ -276,12 +285,35 @@ function show_recipe()
 						$("input[name='vote_points']").TouchSpin
 						(
 							{
-								min: 0,
-								max: 5,
-								boostat: 5,
-								maxboostedstep: 10,
+								"min": 0,
+								"max": 5
 							}
-						);
+						)
+						.on
+						(
+							"change", function(i,e)
+							{
+								var points = $("input[name='vote_points']").val();
+								$.ajax
+								(
+									{
+										url: 'index.php?ajax=1&action=vote_user&points=' + points + '&id_recipe=' + <?=$id;?>,
+										type: 'GET',
+										dataType: 'json',
+										error:
+											function()
+											{
+												// None
+											},
+										success:
+											function(data)
+											{
+												refresh_stars(data['stars'], data['count_votes']);
+											}
+									}
+								);
+							}
+						)
 					}
 				);
 			</script>

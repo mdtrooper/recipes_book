@@ -146,27 +146,34 @@ function page($content = null)
 	<?php
 }
 
-function points_to_stars($points = 0)
+function stars($points = 0)
 {
 	$points = (int)$points;
+	
+	for ($i = 0; $i < $points; $i++)
+	{
+		?>
+		<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+		<?php
+	}
 	?>
-	<span>
-		<?php
-		for ($i = 0; $i < $points; $i++)
-		{
-			?>
-			<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-			<?php
-		}
+	<?php
+	for ($i = 0; $i < (MAX_POINTS - $points); $i++)
+	{
 		?>
+		<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
 		<?php
-		for ($i = 0; $i < (MAX_POINTS - $points); $i++)
-		{
-			?>
-			<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
-			<?php
-		}
+	}
+}
+
+function points_to_stars($points = 0, $count_votes = 0)
+{
+	?>
+	<span id="stars">
+		<?php
+		stars($points);
 		?>
+		<span id="count_votes" class="badge"><?=$count_votes?> Votes</span>
 	</span>
 	<?php
 }

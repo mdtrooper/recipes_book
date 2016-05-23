@@ -35,4 +35,27 @@ function ajax_get_ingredients()
 	
 	echo json_encode($ingredients);
 }
+
+function ajax_vote_user()
+{
+	$points = (int)get_parameter("points", 0);
+	$id_recipe = (int)get_parameter("id_recipe", 0);
+	
+	vote_recipe($id_recipe, $points);
+	
+	$total_points = get_avg_point_from_recipe($id_recipe);
+	$count_votes = get_count_votes($id_recipe);
+	
+	ob_start();
+	points_to_stars($total_points, $count_votes);
+	$stars = ob_get_clean();
+	
+	echo json_encode
+	(
+		array
+		(
+			'stars' => $stars
+		)
+	);
+}
 ?>
