@@ -235,6 +235,7 @@ function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
 {
 	global $config;
 	
+	
 	if (is_null($conditions))
 		$conditions = array();
 	$where_sql = db_make_where($conditions);
@@ -252,6 +253,9 @@ function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
 	$limit_sql = "";
 	if (!is_null($limit))
 	{
+		debug(debug_backtrace(), true);
+		debug($limit, true);
+		
 		$limit_sql = "LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
 	}
 	
@@ -264,6 +268,10 @@ function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
 	$columns_type = db_get_columns_info($table);
 	foreach ($conditions as $column => $condition)
 	{
+		
+		debug(debug_backtrace(), true);
+		debug(func_get_args(), true);
+		
 		$stmt->bindValue(":where_" .$column, reset($condition), $columns_type[$column]);
 	}
 	
@@ -737,10 +745,98 @@ function get_avg_point_from_recipe($id_recipe = 0)
 	}
 }
 
+function flat_array($array)
+{
+	$return = array();
+	
+	if (is_array($array))
+	{
+		foreach ($array as $item)
+			$return[] = reset($item);
+	}
+	
+	return $return;
+}
+
+function get_recipes_extended($conditions = null, $count = false, $pagination_values = null)
+{
+	$id_recipes = array();
+	
+	if (is_array($conditions))
+	{
+		if (isset($conditions['free_search']))
+		{
+			$id_tags = db_get_rows('tags', array('id'),
+				array('tag' => array('like' => '%' . $conditions['free_search'] . '%')));
+			$id_tags = flat_array($id_tags);
+			$sql = "SELECT id_recipe
+				FROM rel_tags_recipes
+				WHERE id_tag IN (" . implode(",", $id_tags) . ")";
+			$temp_id_recipes = db_get_rows_sql($sql);
+			$temp_id_recipes = flat_array($temp_id_recipes);
+			$id_recipes = array_merge($id_recipes, $temp_id_recipes);
+			$id_recipes = array_unique($id_recipes);
+			
+			
+			$id_ingredients = db_get_rows('ingredients', array('id'),
+				array('ingredient' => array('like' => '%' . $conditions['free_search'] . '%')));
+			$id_ingredients = flat_array($id_ingredients);
+			$sql = "SELECT id_recipe
+				FROM rel_ingredients_recipes
+				WHERE id_ingredient IN (" . implode(",", $id_tags) . ")";
+			$temp_id_recipes = db_get_rows_sql($sql);
+			$temp_id_recipes = flat_array($temp_id_recipes);
+			$id_recipes = array_merge($id_recipes, $temp_id_recipes);
+			$id_recipes = array_unique($id_recipes);
+			
+			
+			$temp_id_recipes = db_get_rows('steps', array('id_recipe'),
+				array('step' => array('like' => '%' . $conditions['free_search'] . '%')));
+			$temp_id_recipes = db_get_rows_sql($sql);
+			$temp_id_recipes = flat_array($temp_id_recipes);
+			$id_recipes = array_merge($id_recipes, $temp_id_recipes);
+			$id_recipes = array_unique($id_recipes);
+			
+			
+			$temp_id_recipes = db_get_rows('recipes', array('id'),
+				array('title' => array('like' => '%' . $conditions['free_search'] . '%'),
+					'description' => array('like' => '%' . $conditions['free_search'] . '%')));
+			$temp_id_recipes = flat_array($temp_id_recipes);
+			$id_recipes = array_merge($id_recipes, $temp_id_recipes);
+			$id_recipes = array_unique($id_recipes);
+		}
+		
+		
+	}
+	
+	if ($count)
+	{
+		$sql = "SELECT COUNT(*)
+			FROM recipes
+			WHERE id IN (" . implode(",", $id_recipes) . ")";
+		
+		$count_row = db_get_rows_sql($sql);
+		
+		if (empty($count_row))
+			return 0;
+		else
+			$return = reset(reset($count_row));
+	}
+	else
+	{
+		$sql = "SELECT *
+			FROM recipes
+			WHERE id IN (" . implode(",", $id_recipes) . ")
+			LIMIT " . PAGINATION_BLOCK . " OFFSET " . $pagination_values['offset'];
+		
+		$return = db_get_rows_sql($sql);
+	}
+	
+	return $return;
+}
+
 function get_recipes($conditions = null, $count = false, $pagination_values = null)
 {
-	$conditions = array();
-	
 	if ($count)
 		$recipes = db_get_count('recipes', null, $conditions);
 	else

@@ -19,6 +19,8 @@ function page($content = null)
 {
 	global $config;
 	
+	$free_search = (string)get_parameter('free_search', '');
+	
 	if (!isset($content['title']))
 		$content['title'] = "Recipes book";
 	
@@ -44,6 +46,12 @@ function page($content = null)
 				break;
 			case 'user':
 				$user_active = $active;
+				break;
+			case 'tags':
+				$tags_active = $active;
+				break;
+			case 'recipes':
+				$recipes_active = $active;
 				break;
 		}
 	}
@@ -104,9 +112,9 @@ function page($content = null)
 						
 						<ul class="nav navbar-nav navbar-right">
 							<li>
-								<form class="navbar-form" role="search">
+								<form class="navbar-form" role="search" action="index.php?page=recipes" method="post">
 									<div class="form-group has-feedback">
-										<input type="text" class="form-control" placeholder="Search" />
+										<input type="text" class="form-control" placeholder="Search" name="free_search" value="<?=$free_search;?>" />
 										<i class="glyphicon glyphicon-search form-control-feedback"></i>
 									</div>
 								</form>

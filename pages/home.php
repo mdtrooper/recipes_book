@@ -25,27 +25,34 @@ function show_home()
 	$total_ingredients = (int)db_get_count('ingredients');
 	
 	$temp = db_get_rows_sql("
-		SELECT (SELECT tag FROM tags WHERE tags.id = id_tag) AS tag, COUNT(id_recipe) AS count
+		SELECT (SELECT tag FROM tags WHERE tags.id = id_tag) AS tag, id_tag, COUNT(id_recipe) AS count
 		FROM rel_tags_recipes
 		GROUP BY id_tag
 		ORDER BY count DESC
 		LIMIT 1;
 	");
 	$most_tag_used = "";
-	if (!empty($temp))
+	$most_id_tag_used = 0;
+	if (!empty($temp)) {
 		$most_tag_used = $temp[0]['tag'];
+		$most_id_tag_used = $temp[0]['id_tag'];
+	}
 	
 	$temp = db_get_rows_sql("
 		SELECT (SELECT ingredient FROM ingredients WHERE ingredients.id = id_ingredient) AS ingredient,
+			id_ingredient,
 			COUNT(id_recipe) AS count
 		FROM rel_ingredients_recipes
 		GROUP BY id_ingredient
 		ORDER BY count DESC
 		LIMIT 1;
 	");
+	$most_id_ingredient_used = 0;
 	$most_ingredient_used = "";
-	if (!empty($temp))
+	if (!empty($temp)) {
 		$most_ingredient_used = $temp[0]['ingredient'];
+		$most_id_ingredient_used = $temp[0]['id_ingredient'];
+	}
 	
 	$temp = db_get_rows_sql("
 		SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
@@ -147,11 +154,11 @@ function show_home()
 			</div>
 			<div class="row">
 				<div class="col-md-10"><strong>Tag most used:</strong></div>
-				<div class="col-md-2"><?=$most_tag_used;?></div>
+				<div class="col-md-2"><a href="index.php?page=recipes&id_tag=<?=$most_id_tag_used;?>"><?=$most_tag_used;?></a></div>
 			</div>
 			<div class="row">
 				<div class="col-md-10"><strong>Ingredient most used:</strong></div>
-				<div class="col-md-2"><?=$most_ingredient_used;?></div>
+				<div class="col-md-2"><a href="index.php?page=recipes&id_ingredient=<?=$most_id_ingredient_used;?>"><?=$most_ingredient_used;?></a></div>
 			</div>
 			<div class="row">
 				<div class="col-md-8"><strong>Recipe most large duration:</strong></div>

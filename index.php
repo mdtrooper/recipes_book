@@ -120,9 +120,17 @@ switch ($page)
 		require_once("pages/user.php");
 		show_user();
 		break;
+	case 'recipes':
+		require_once("pages/recipes.php");
+		show_recipes();
+		break;
 	case 'recipe':
 		require_once("pages/recipe.php");
 		show_recipe();
+		break;
+	case 'tags':
+		require_once("pages/tags.php");
+		show_tags();
 		break;
 }
 ?>
