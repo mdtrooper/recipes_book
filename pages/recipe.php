@@ -33,8 +33,6 @@ function show_recipe()
 	}
 	$content["section"] = "recipe";
 	
-	
-	
 	ob_start();
 	if (empty($recipe))
 	{
@@ -54,99 +52,99 @@ function show_recipe()
 				if ($config['id_user'] == $recipe['id_user'])
 				{
 				?>
-				<div class="col-md-1">
-					<a href="index.php?page=recipes&duration=<?=$recipe['duration'];?>">
-					<span class='badge'>
-						<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
-					</a>
-				</div>
-				<div class="col-md-1">
-					<a href="index.php?page=recipes&servings=<?=$recipe['servings'];?>">
-					<span class='badge'>
-						<h3>
-							<?=$recipe['servings'];?>
-							<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
-						</h3>
-					</a>
-				</div>
-				<div class="col-md-2">
-					<div>
-						<span id="points">
-							<?php
-							points_to_stars($recipe['points'], $recipe['count_votes']);
-							?>
-						</span>
-						<span id="votation_points" style="display: none;">
-							<input class="form-control" type="text" value="<?=get_votes_user($id);?>" size="1" name="vote_points">
-						</span>
-					</div>
-					<div>
-						<span class="btn-group" role="group">
-							<a href="#" onclick="show_votation_input();" class="btn btn-default">
-								<span id="vote_button" class="glyphicon glyphicon-flash" aria-hidden="true"></span>
-								<span id="back_vote_button" class="glyphicon glyphicon-arrow-left" aria-hidden="true" style="display:none;"></span>
-							</a>
-							<a href="index.php?page=recipes&points=<?=round($recipe['points'], 2);?>" class="btn btn-default">
-								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-							</a>
-						</span>
-					</div>
-				</div>
-				<div class="col-md-6 text-uppercase">
-					<h3><?=$recipe['title'];?></h3>
-				</div>
-				<div class="col-md-1">
-					<a href="index.php?page=recipes&steps=<?=$recipe['steps'];?>">
+					<div class="col-md-1">
+						<a href="index.php?page=recipes&duration=<?=$recipe['duration'];?>">
 						<span class='badge'>
-							<h3><?=count($recipe['steps']) . " steps";?></h3>
-						</span>
-					</a>
-				</div>
-				<div class="col-md-1">
-					<a href="index.php?page=recipe_form&action=edit_recipe&id_recipe=<?=$id;?>" class="btn btn-default btn-lg" aria-label="Left Align">
-						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-					</a>
-				</div>
+							<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
+						</a>
+					</div>
+					<div class="col-md-1">
+						<a href="index.php?page=recipes&servings=<?=$recipe['servings'];?>">
+						<span class='badge'>
+							<h3>
+								<?=$recipe['servings'];?>
+								<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
+							</h3>
+						</a>
+					</div>
+					<div class="col-md-2">
+						<div>
+							<span id="points">
+								<?php
+								points_to_stars($recipe['points'], $recipe['count_votes']);
+								?>
+							</span>
+							<span id="votation_points" style="display: none;">
+								<input class="form-control" type="text" value="<?=get_votes_user($id);?>" size="1" name="vote_points">
+							</span>
+						</div>
+						<div>
+							<span class="btn-group" role="group">
+								<a href="#" onclick="show_votation_input();" class="btn btn-default">
+									<span id="vote_button" class="glyphicon glyphicon-flash" aria-hidden="true"></span>
+									<span id="back_vote_button" class="glyphicon glyphicon-arrow-left" aria-hidden="true" style="display:none;"></span>
+								</a>
+								<a href="index.php?page=recipes&points=<?=round($recipe['points'], 2);?>" class="btn btn-default">
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+								</a>
+							</span>
+						</div>
+					</div>
+					<div class="col-md-6 text-uppercase">
+						<h3><?=$recipe['title'];?></h3>
+					</div>
+					<div class="col-md-1">
+						<a href="index.php?page=recipes&steps=<?=$recipe['steps'];?>">
+							<span class='badge'>
+								<h3><?=count($recipe['steps']) . " steps";?></h3>
+							</span>
+						</a>
+					</div>
+					<div class="col-md-1">
+						<a href="index.php?page=recipe_form&action=edit_recipe&id_recipe=<?=$id;?>" class="btn btn-default btn-lg" aria-label="Left Align">
+							<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+						</a>
+					</div>
 				<?php
 				}
 				else
 				{
 				?>
-				<div class="col-md-1">
-					<a href="index.php?page=recipes&duration=<?=$recipe['duration'];?>">
-					<span class='badge'>
-						<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
-					</span>
-					</a>
-				</div>
-				<div class="col-md-1">
-					<a href="index.php?page=recipes&servings=<?=$recipe['servings'];?>">
-					<span class='badge'>
-						<h3>
-							<?=$recipe['servings'];?>
-							<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
-						</h3>
-						
-					</a>
-				</div>
-				<div class="col-md-2">
-					<?php
-					points_to_stars($recipe['points']);
-					?>
-					<a href="index.php?page=recipes&points=<?=$recipe['points'];?>" class="btn btn-default">
-						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-					</a>
-				</div>
-				<div class="col-md-7 text-uppercase">
-					<h3><?=$recipe['title'];?></h3>
-				</div>
-				<div class="col-md-1">
-					<a href="index.php?page=recipes&steps=<?=$recipe['steps'];?>">
+					<div class="col-md-1">
+						<a href="index.php?page=recipes&duration=<?=$recipe['duration'];?>">
 						<span class='badge'>
-							<h3><?=count($recipe['steps']) . " steps";?></h3>
+							<h3><?=time_array_to_string(seconds_to_time_array($recipe['duration']));?></h3>
 						</span>
-					</a>
-				</div>
+						</a>
+					</div>
+					<div class="col-md-1">
+						<a href="index.php?page=recipes&servings=<?=$recipe['servings'];?>">
+						<span class='badge'>
+							<h3>
+								<?=$recipe['servings'];?>
+								<span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>
+							</h3>
+							
+						</a>
+					</div>
+					<div class="col-md-2">
+						<?php
+						points_to_stars($recipe['points'], $recipe['count_votes']);
+						?>
+						<a href="index.php?page=recipes&points=<?=$recipe['points'];?>" class="btn btn-default">
+							<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+						</a>
+					</div>
+					<div class="col-md-7 text-uppercase">
+						<h3><?=$recipe['title'];?></h3>
+					</div>
+					<div class="col-md-1">
+						<a href="index.php?page=recipes&steps=<?=$recipe['steps'];?>">
+							<span class='badge'>
+								<h3><?=count($recipe['steps']) . " steps";?></h3>
+							</span>
+						</a>
+					</div>
 				<?php
 				}
 				?>
