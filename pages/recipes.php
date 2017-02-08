@@ -151,6 +151,9 @@ function show_recipes()
 			}
 			?>
 		</div>
+		<?php
+		print_pagination($pagination_values, "index.php?page=recipes");
+		?>
 	</div>
 	<?php
 	
