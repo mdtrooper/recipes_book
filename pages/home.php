@@ -192,7 +192,9 @@ function show_home()
 		<div class="panel-body">
 			<?php
 			$temp = db_get_rows_sql("
-				SELECT (SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
+				SELECT
+					(SELECT title FROM recipes WHERE recipes.id = id_recipe) AS recipe,
+					(SELECT description FROM recipes WHERE recipes.id = id_recipe) AS description,
 					(SUM(points) / COUNT(id_user)) AS average, id_recipe
 				FROM points
 				GROUP BY id_recipe
@@ -205,12 +207,15 @@ function show_home()
 				{
 					?>
 					<div class="row">
-						<div class="col-md-10">
+						<div class="col-md-3">
 							<a href="index.php?page=recipe&id=<?=$row['id_recipe'];?>">
 								<?=$row['recipe'];?>
 							</a>
 						</div>
-						<div class="col-md-2"><span class='badge'><?=round($row['average'], 2);?></span></div>
+						<div class="col-md-8">
+							<?=truncate_string($row['description']);?>
+						</div>
+						<div class="col-md-1"><span class='badge'><?=round($row['average'], 2);?></span></div>
 					</div>
 					<?php
 				}
