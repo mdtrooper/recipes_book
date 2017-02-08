@@ -223,7 +223,7 @@ function show_home()
 		<div class="panel-body">
 			<?php
 			$temp = db_get_rows_sql("
-				SELECT title, id
+				SELECT title, description, id
 				FROM recipes
 				ORDER BY id DESC
 				LIMIT 5;
@@ -234,10 +234,13 @@ function show_home()
 				{
 					?>
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-3">
 							<a href="index.php?page=recipe&id=<?=$row['id'];?>">
 								<?=$row['title'];?>
 							</a>
+						</div>
+						<div class="col-md-9">
+							<?=truncate_string($row['description']);?>
 						</div>
 					</div>
 					<?php
