@@ -24,7 +24,9 @@ function show_recipes()
 	$content["section"] = "recipes";
 	
 	// The parameters
+	$flag_filter_enabled = false;
 	$free_search = (string)get_parameter('free_search', '');
+	if (!empty($free_search)) $flag_filter_enabled = true;
 	
 	$conditions = array();
 	$conditions['free_search'] = $free_search;
@@ -41,7 +43,24 @@ function show_recipes()
 				<div class="panel-heading">
 					<h4 class="panel-title row">
 						<div class="col-md-11">
-							<a data-toggle="collapse" type="button" class="btn btn-default btn-lg btn-block" href="#form_filter">Filters <span class="glyphicon glyphicon-filter"></span></a>
+							<a data-toggle="collapse" type="button" class="btn btn-default btn-lg btn-block" href="#form_filter">
+								<span class="glyphicon glyphicon-filter"></span>
+								Filters
+								<?php
+								if ($flag_filter_enabled)
+								{
+									?>
+									- Some filters applyed
+									<?php
+								}
+								else
+								{
+									?>
+									- Empty filters applyed
+									<?php
+								}
+								?>
+							</a>
 						</div>
 						<div class="col-md-1">
 							<a type="button" class="btn btn-default btn-lg btn-block"><span class="glyphicon glyphicon-search"></a>
@@ -152,7 +171,8 @@ function show_recipes()
 			?>
 		</div>
 		<?php
-		print_pagination($pagination_values, "index.php?page=recipes");
+		if ($count_recipes > 0)
+			print_pagination($pagination_values, "index.php?page=recipes");
 		?>
 	</div>
 	<?php
