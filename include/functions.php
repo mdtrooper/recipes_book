@@ -879,6 +879,7 @@ function pagination_get_values($count)
 	
 	return array
 		(
+			'count' => $count,
 			'page' => $page,
 			'pages' => $pages,
 			'offset' => $offset,
@@ -891,10 +892,10 @@ function print_pagination($pagination_values, $url)
 {
 	if ($pagination_values['pages'] == 1)
 		return;
-	
 	?>
 	<div class="text-center">
 		<ul class="pagination">
+			<li class="disabled"><a href="javascript:">Total: <?=$pagination_values['count'];?></a></li>
 		<?php
 		if ($pagination_values['ini_page'] > 1)
 		{
