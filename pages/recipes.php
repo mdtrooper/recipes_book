@@ -29,7 +29,7 @@ function show_recipes()
 	$conditions = array();
 	$conditions['free_search'] = $free_search;
 	
-	$count_recipes = get_recipes_extended($conditions, true); debug($count_recipes, true);
+	$count_recipes = get_recipes_extended($conditions, true);
 	$pagination_values = pagination_get_values($count_recipes);
 	$recipes = get_recipes_extended($conditions, false, $pagination_values);
 	
@@ -140,7 +140,7 @@ function show_recipes()
 			?>
 				<div class="list-group-item">
 					<div class="input-group-btn" >
-						<a class="btn btn-default col-md-12" style="text-align: left;" href="index.php?page=show_recipe&id_recipe=<?=$recipe['id'];?>">
+						<a class="btn btn-default col-md-12" style="text-align: left;" href="index.php?page=recipe&id=<?=$recipe['id'];?>">
 							<?php
 							echo $recipe['title'] . " - " . truncate_string($recipe['description']);
 							?>
