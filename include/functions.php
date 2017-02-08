@@ -253,9 +253,6 @@ function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
 	$limit_sql = "";
 	if (!is_null($limit))
 	{
-		debug(debug_backtrace(), true);
-		debug($limit, true);
-		
 		$limit_sql = "LIMIT " . $limit['limit'] . " OFFSET " . $limit['offset'];
 	}
 	
@@ -268,10 +265,6 @@ function db_get_rows($table, $fields = null, $conditions = null, $limit = null)
 	$columns_type = db_get_columns_info($table);
 	foreach ($conditions as $column => $condition)
 	{
-		
-		debug(debug_backtrace(), true);
-		debug(func_get_args(), true);
-		
 		$stmt->bindValue(":where_" .$column, reset($condition), $columns_type[$column]);
 	}
 	
@@ -792,15 +785,17 @@ function get_recipes_extended($conditions = null, $count = false, $pagination_va
 			
 			$temp_id_recipes = db_get_rows('steps', array('id_recipe'),
 				array('step' => array('like' => '%' . $conditions['free_search'] . '%')));
-			$temp_id_recipes = db_get_rows_sql($sql);
 			$temp_id_recipes = flat_array($temp_id_recipes);
 			$id_recipes = array_merge($id_recipes, $temp_id_recipes);
 			$id_recipes = array_unique($id_recipes);
 			
 			
-			$temp_id_recipes = db_get_rows('recipes', array('id'),
-				array('title' => array('like' => '%' . $conditions['free_search'] . '%'),
-					'description' => array('like' => '%' . $conditions['free_search'] . '%')));
+			$temp_id_recipes = db_get_rows_sql("
+				SELECT id
+				FROM recipes
+				WHERE title like '%" . $conditions['free_search'] . "%'
+					OR description like '%" . $conditions['free_search'] . "%'
+			");
 			$temp_id_recipes = flat_array($temp_id_recipes);
 			$id_recipes = array_merge($id_recipes, $temp_id_recipes);
 			$id_recipes = array_unique($id_recipes);
