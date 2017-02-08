@@ -47,7 +47,7 @@ function show_tags()
 			$rel = (int)(($tag['count'] / $count) * 100);
 			
 			?>
-			<a href="/index.php?page=recipes&id_tag=<?=$tag['id_tag'];?>" rel="<?=$rel;?>"><?=$tag['tag'];?></a>
+			<a href="index.php?page=recipes&id_tag=<?=$tag['id_tag'];?>" rel="<?=$rel;?>"><?=$tag['tag'];?></a>
 			<?php
 		}
 		?>
