@@ -88,6 +88,17 @@ switch ($action)
 			$page = "login";
 		}
 		break;
+	case "update_user":
+		$correct = user_update();
+		if ($correct)
+		{
+			set_message("correct_update_user");
+		}
+		else
+		{
+			set_message("error_update_user");
+		}
+		break;
 }
 
 if (($page === "login" && user_logged()) ||

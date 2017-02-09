@@ -139,6 +139,31 @@ function login()
 	return $validate;
 }
 
+function user_update()
+{
+	global $config;
+	
+	$email = get_parameter('email', '');
+	$password = get_parameter('password', '');
+	$repeat_password = get_parameter('repeat_password', '');
+	
+	if (empty($password) || empty($repeat_password))
+		return false;
+	
+	if ($password !== $repeat_password)
+		return false;
+	
+	$update = db_update('users',
+		array('email' => $email, 'password' => md5($password)),
+		array
+			(
+				'id' =>  array('=' => $config['id_user'])
+			)
+		);
+	
+	return (bool)$update;
+}
+
 function get_measure_types()
 {
 	$measure_types = db_get_rows('measure_types', array('id', 'measure_type'));
@@ -326,6 +351,8 @@ function db_update($table, $values, $conditions)
 	}
 	
 	$stmt->execute();
+	
+	return $stmt->rowCount();
 }
 
 function db_insert($table, $values)

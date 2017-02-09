@@ -26,18 +26,39 @@ function show_user()
 	$user = db_get_rows('users',
 		null,
 		array('id' => array('=' => $config['id_user'])));
+	$user = $user[0];
 	
 	
 	ob_start();
+	
+	switch (get_message())
+	{
+		case "error_update_user":
+			?>
+			<div class="alert alert-danger" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>Error!</strong> A problem has been occurred in the update user.
+			</div>
+			<?php
+			break;
+		case "correct_update_user":
+			?>
+			<div class="alert alert-success" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>Correct!</strong> Update user.
+			</div>
+			<?php
+			break;
+	}
 	?>
 	<div class="panel panel-default">
 		<div class="panel-heading">User Profile</div>
-		<form id="user_profile" method="post" action="index.php">
+		<form id="user_profile" method="post" action="index.php?page=user">
 			<input type="hidden" name="action" value="update_user" />
 			<input type="text" class="form-control" placeholder="User" name="user" value="<?=$config['user'];?>" readonly="readonly" />
 			<input type="text" class="form-control" placeholder="Email" name="email" value="<?=$user['email'];?>" />
-			<input type="text" class="form-control" placeholder="Password" name="password" value="" />
-			<input type="text" class="form-control" placeholder="Repeat password" name="repeat_password" value="" />
+			<input type="password" class="form-control" placeholder="Password" name="password" value="" />
+			<input type="password" class="form-control" placeholder="Repeat password" name="repeat_password" value="" />
 			<button type="button" class="btn btn-default btn-lg btn-block" onclick="$('#user_profile').submit();">
 				Update
 				<span class="glyphicon glyphicon-save"></span>
