@@ -40,6 +40,7 @@ function show_user()
 				<strong>Error!</strong> A problem has been occurred in the update user.
 			</div>
 			<?php
+			set_message(null);
 			break;
 		case "correct_update_user":
 			?>
@@ -48,6 +49,7 @@ function show_user()
 				<strong>Correct!</strong> Update user.
 			</div>
 			<?php
+			set_message(null);
 			break;
 	}
 	?>
