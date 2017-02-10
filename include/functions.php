@@ -164,6 +164,44 @@ function user_update()
 	return (bool)$update;
 }
 
+function delete_recipe()
+{
+	global $config;
+	
+	$id_recipe = (int)get_parameter('id_recipe');
+	
+	$return = (bool)db_delete("recipes",
+		array('id' => array('=' => $id_recipe),
+			'id_user' => array('=' => $config['id_user'])));
+	
+	return $return;
+}
+
+function db_delete($table, $conditions)
+{
+	global $config;
+	
+	if (is_null($conditions))
+		$conditions = array();
+	$where_sql = db_make_where($conditions);
+	
+	$sql = "DELETE
+		FROM $table
+		WHERE $where_sql";
+	
+	$stmt = $config['db']->prepare($sql);
+	
+	$columns_type = db_get_columns_info($table);
+	foreach ($conditions as $column => $condition)
+	{
+		$stmt->bindValue(":where_" .$column, reset($condition), $columns_type[$column]);
+	}
+	
+	$stmt->execute();
+	
+	return $stmt->rowCount();
+}
+
 function get_measure_types()
 {
 	$measure_types = db_get_rows('measure_types', array('id', 'measure_type'));

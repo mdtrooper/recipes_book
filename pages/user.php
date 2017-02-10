@@ -51,6 +51,24 @@ function show_user()
 			<?php
 			set_message(null);
 			break;
+		case 'error_delete_recipe':
+			?>
+			<div class="alert alert-danger" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>Error!</strong> A problem has been occurred in the delete recipe.
+			</div>
+			<?php
+			set_message(null);
+			break;
+		case 'correct_delete_recipe':
+			?>
+			<div class="alert alert-success" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>Correct!</strong> Delete recipe.
+			</div>
+			<?php
+			set_message(null);
+			break;
 	}
 	?>
 	<div class="panel panel-default">
@@ -103,7 +121,7 @@ function show_user()
 								?>
 							</a>
 							<a class="btn btn-default col-md-1" href="index.php?page=recipe_form&action=edit_recipe&id_recipe=<?=$recipe['id'];?>"><span class="glyphicon glyphicon-edit"></span></a>
-							<a class="btn btn-default col-md-1" href="index.php?page=user&action=delete_recipe&id_recipe=<?=$recipe['id'];?>"><span class="glyphicon glyphicon-trash"></span></a>
+							<a class="btn btn-default col-md-1" href="index.php?page=user&action=delete_recipe&id_recipe=<?=$recipe['id'];?>" onclick="if (confirm('Are you sure?')) return true; else return false;"><span class="glyphicon glyphicon-trash"></span></a>
 						</div>
 					</div>
 				<?php

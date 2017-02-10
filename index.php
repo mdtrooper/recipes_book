@@ -99,6 +99,19 @@ switch ($action)
 			set_message("error_update_user");
 		}
 		break;
+	case 'delete_recipe':
+		$correct = false;
+		if (user_logged())
+			$correct = delete_recipe();
+		if ($correct)
+		{
+			set_message("correct_delete_recipe");
+		}
+		else
+		{
+			set_message("error_delete_recipe");
+		}
+		break;
 }
 
 if (($page === "login" && user_logged()) ||
