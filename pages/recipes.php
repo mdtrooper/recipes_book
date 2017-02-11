@@ -25,8 +25,37 @@ function show_recipes()
 	
 	// The parameters
 	$conditions = array();
-	
 	$flag_filter_enabled = false;
+	$tags_list = "";
+	
+	$similar = (bool)get_parameter('similar');
+	if ($similar)
+	{
+		$id_recipe = (int)get_parameter('id_recipe');
+		$type = get_parameter('type');
+		
+		if (!empty($type) && !empty($id_recipe))
+			$flag_filter_enabled = true;
+		
+		switch ($type)
+		{
+			case 'tags':
+				$id_tag_rows = db_get_rows('rel_tags_recipes', 'id_tag',
+					array('id_recipe' => array('=' =>$id_recipe)));
+				
+				$id_tag_rows = flat_array($id_tag_rows);
+				
+				$tag_rows = db_get_rows_sql('
+					SELECT tag
+					FROM tags
+					WHERE id IN (' . implode(',', $id_tag_rows) . ')');
+				
+				$tags = flat_array($tag_rows);
+				$tags_list = implode(',', $tags);
+				break;
+		}
+	}
+	
 	$free_search = (string)get_parameter('free_search', '');
 	if (!empty($free_search))
 	{
@@ -35,7 +64,8 @@ function show_recipes()
 	}
 	
 	$tags = "";
-	$tags_list = get_parameter('tags', "");
+	if (empty($tags_list))
+		$tags_list = get_parameter('tags', "");
 	if (!empty($tags_list))
 	{
 		$tags .= $tags_list;
