@@ -866,7 +866,39 @@ function get_recipes_extended($conditions = null, $count = false, $pagination_va
 			$id_recipes = array_unique($id_recipes);
 		}
 		
-		
+		if (isset($conditions['id_tag']))
+		{
+			if (is_array($conditions['id_tag']))
+			{
+				// From the question:
+				// http://stackoverflow.com/questions/39011081/how-to-select-column-using-mysql-operator-all-values-must-be-available-mysql
+				
+				$sql = "SELECT id_recipe
+					FROM rel_tags_recipes
+					WHERE id_tag IN (" . implode("," ,$conditions['id_tag']) . ")
+					GROUP BY id_recipe
+					HAVING count(distinct(id_tag)) = " . count($conditions['id_tag']);
+			}
+			else
+			{
+				$sql = "SELECT id_recipe
+					FROM rel_tags_recipes
+					WHERE id_tag = " . $conditions['id_tag'];
+			}
+			$temp_id_recipes = db_get_rows_sql($sql);
+			$temp_id_recipes = flat_array($temp_id_recipes);
+			$id_recipes = array_merge($id_recipes, $temp_id_recipes);
+			$id_recipes = array_unique($id_recipes);
+		}
+	}
+	elseif (is_null($conditions))
+	{
+		$temp_id_recipes = db_get_rows_sql("
+			SELECT id
+			FROM recipes");
+		$temp_id_recipes = flat_array($temp_id_recipes);
+		$id_recipes = array_merge($id_recipes, $temp_id_recipes);
+		$id_recipes = array_unique($id_recipes);
 	}
 	
 	if ($count)

@@ -24,20 +24,61 @@ function show_recipes()
 	$content["section"] = "recipes";
 	
 	// The parameters
+	$conditions = array();
+	
 	$flag_filter_enabled = false;
 	$free_search = (string)get_parameter('free_search', '');
-	if (!empty($free_search)) $flag_filter_enabled = true;
+	if (!empty($free_search))
+	{
+		$flag_filter_enabled = true;
+		$conditions['free_search'] = $free_search;
+	}
 	
-	$conditions = array();
-	$conditions['free_search'] = $free_search;
+	$tags = "";
+	$tags_list = get_parameter('tags', "");
+	if (!empty($tags_list))
+	{
+		$tags .= $tags_list;
+		$tags_array = explode(',', $tags_list);
+		
+		foreach ($tags_array as $tag)
+		{
+			$flag_filter_enabled = true;
+			$id_tag = (int)db_get_value('tags', 'id',
+				array('tag' => array('=' => $tag)));
+			if (!empty($id_tag))
+				$conditions['id_tag'][] = $id_tag;
+		}
+	}
 	
-	$count_recipes = get_recipes_extended($conditions, true);
-	$pagination_values = pagination_get_values($count_recipes);
-	$recipes = get_recipes_extended($conditions, false, $pagination_values);
+	$id_tag = (int)get_parameter('id_tag');
+	if (!empty($id_tag))
+	{
+		$flag_filter_enabled = true;
+		$conditions['id_tag'] = $id_tag;
+		
+		$tag_row = db_get_value('tags', 'tag',
+			array('id' => array('=' => $id_tag)));
+		
+		$tags .= $tag_row;
+	}
+	
+	if ($flag_filter_enabled)
+	{
+		$count_recipes = get_recipes_extended($conditions, true);
+		$pagination_values = pagination_get_values($count_recipes);
+		$recipes = get_recipes_extended($conditions, false, $pagination_values);
+	}
+	else
+	{
+		$count_recipes = get_recipes_extended(null, true);
+		$pagination_values = pagination_get_values($count_recipes);
+		$recipes = get_recipes_extended(null, false, $pagination_values);
+	}
 	
 	ob_start();
 	?>
-	<form id="filter_form" method="post" action="index.php">
+	<form id="filter_form" method="post" action="index.php?page=recipes">
 		<div class="panel-group">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -63,7 +104,9 @@ function show_recipes()
 							</a>
 						</div>
 						<div class="col-md-1">
-							<a type="button" class="btn btn-default btn-lg btn-block"><span class="glyphicon glyphicon-search"></a>
+							<a href="javascript: $('#filter_form').submit();" type="button" class="btn btn-default btn-lg btn-block">
+								<span class="glyphicon glyphicon-search">
+							</a>
 						</div>
 					</h4>
 				</div>
@@ -175,6 +218,22 @@ function show_recipes()
 			print_pagination($pagination_values, "index.php?page=recipes");
 		?>
 	</div>
+	<script type="text/javascript">
+		$("input[name='tags']").tagsinput
+		(
+			{
+				typeahead:
+				{
+					source:  function(query)
+					{
+						source = $.getJSON('index.php?ajax=1&action=get_tags&query=' + query);
+						
+						return source;
+					}
+				}
+			}
+		);
+	</script>
 	<?php
 	
 	$content["body"] = ob_get_clean();
