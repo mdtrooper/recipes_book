@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  httpd:
+     image: php:7.0-apache
+     restart: always
+     ports:
+       - 8080:80
+     volumes:
+       - ./www:/var/www/html
+     links:
+       - maria_db
+
+  maria_db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+    driver: local
