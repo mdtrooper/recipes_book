@@ -2,6 +2,7 @@ version: '2'
 
 services:
   httpd:
+     container_name : httpd
      image: php:7.0-apache
      restart: always
      ports:
@@ -12,6 +13,7 @@ services:
        - maria_db
 
   maria_db:
+    container_name : mariadb
     image: mariadb
     restart: always
     environment:

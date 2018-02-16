@@ -3,4 +3,4 @@
 cd www
 ln -s ../../recipes_book .
 
-docker-compose up --build -d
+docker-compose -p recipes_book up --build -d
