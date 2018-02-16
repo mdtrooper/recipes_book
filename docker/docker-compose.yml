@@ -3,7 +3,7 @@ version: '2'
 services:
   httpd:
      container_name : httpd
-     image: php:7.0-apache
+     build: .
      restart: always
      ports:
        - 8080:80
