@@ -1,4 +1,4 @@
-FROM php:7.0-apache
+FROM php:7-apache
 RUN apt-get update && apt-get install -y \
     wget \
     git \
@@ -8,3 +8,4 @@ RUN apt-get update && apt-get install -y \
 
 COPY docker/composer_installer.sh /
 RUN sh /composer_installer.sh
+RUN cd /bin ; wget -O phpunit https://phar.phpunit.de/phpunit-7.phar; chmod +x phpunit
