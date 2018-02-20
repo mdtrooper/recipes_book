@@ -4,8 +4,12 @@ RUN apt-get update && apt-get install -y \
     git \
     zip \
     unzip \
-    vim
+    vim \
+    acl
 
 COPY docker/composer_installer.sh /
 RUN sh /composer_installer.sh
 RUN cd /bin ; wget -O phpunit https://phar.phpunit.de/phpunit-7.phar; chmod +x phpunit
+
+RUN chmod g+s /var/www/html -R
+RUN setfacl -R -d -m u:1000:rwx -m g:1000:rwx  .
