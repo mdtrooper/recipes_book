@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     vim \
     acl
 
+RUN pecl install xdebug
+RUN docker-php-ext-enable xdebug
+
 COPY docker/composer_installer.sh /
 RUN sh /composer_installer.sh
 RUN cd /bin ; wget -O phpunit https://phar.phpunit.de/phpunit-7.phar; chmod +x phpunit
