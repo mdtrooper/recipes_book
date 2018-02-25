@@ -5,6 +5,11 @@ use PHPUnit\Framework\TestCase;
 
 final class EmailTest extends TestCase
 {
+	/**
+     * @covers Email::__construct
+     * @covers Email::fromString
+     * @covers Email::ensureIsValidEmail
+     */
     public function testCanBeCreatedFromValidEmailAddress(): void
     {
         $this->assertInstanceOf(
@@ -13,6 +18,11 @@ final class EmailTest extends TestCase
         );
     }
 
+	/**
+     * @covers Email::__construct
+     * @covers Email::fromString
+     * @covers Email::ensureIsValidEmail
+     */
     public function testCannotBeCreatedFromInvalidEmailAddress(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -20,6 +30,12 @@ final class EmailTest extends TestCase
         Email::fromString('invalid');
     }
 
+	/**
+     * @covers Email::__construct
+     * @covers Email::fromString
+     * @covers Email::ensureIsValidEmail
+     * @covers Email::__toString
+     */
     public function testCanBeUsedAsString(): void
     {
         $this->assertEquals(
