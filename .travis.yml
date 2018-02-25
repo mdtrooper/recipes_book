@@ -10,11 +10,17 @@ mysql:
 
 install:
   - mysql -e "source db.sql"
-  - composer install --prefer-dist --dev
+  # Install coveralls.phar
+  - wget -c -nc --retry-connrefused --tries=0 https://github.com/php-coveralls/php-coveralls/releases/download/v2.0.0/php-coveralls.phar -O coveralls.phar
+  - chmod +x coveralls.phar
+  - php coveralls.phar --version
+
+before_script:
+  - mkdir logs
 
 script:
-  - mkdir logs
   - phpunit
 
-after_script:
-  - php vendor/bin/coveralls -v
+after_success:
+  # Submit coverage report to Coveralls servers, see .coveralls.yml
+  - travis_retry php coveralls.phar -v
