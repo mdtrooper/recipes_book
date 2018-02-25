@@ -10,10 +10,11 @@ mysql:
 
 before_script:
   - mysql -e "source db.sql"
-  - composer install
+  - composer install --prefer-dist --dev
 
 script:
   - mkdir logs
+  - phpunit
 
 after_script:
   - php vendor/bin/coveralls -v
