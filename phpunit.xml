@@ -16,4 +16,7 @@
 		<directory suffix=".php">recipes_book/caca/src</directory>
         </whitelist>
     </filter>
+    <logging>
+        <log type="coverage-clover" target="logs/clover.xml"/>
+    </logging>
 </phpunit>

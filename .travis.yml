@@ -9,4 +9,11 @@ mysql:
 
 
 before_script:
-  mysql -e "source db.sql"
+  - mysql -e "source db.sql"
+  - composer install
+
+script:
+  - mkdir logs
+
+after_script:
+  - php vendor/bin/coveralls -v
