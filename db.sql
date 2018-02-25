@@ -25,7 +25,7 @@
 -- user(_id_, user, email, password, validate)
 
 
-DROP DATABASE recipes_book;
+DROP DATABASE IF EXISTS recipes_book;
 CREATE DATABASE recipes_book;
 
 USE recipes_book;
